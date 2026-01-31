@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard - MediCare</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                MediCare
+            </a>
+            <div style="display: flex; align-items: center; gap: 2rem;">
+                <span style="color: var(--text-dark);">Welcome, <strong id="doctorName">Doctor</strong></span>
+                <button class="btn-secondary" onclick="window.location.href='login.php?logout=1'" style="padding: 0.8rem 1.5rem;">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard -->
+    <section class="dashboard">
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <h1>Doctor Dashboard</h1>
+                <p>Manage your appointments and patient care</p>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="dashboard-grid">
+                <div class="dashboard-card" style="background: linear-gradient(135deg, #0A4D68 0%, #088395 100%); color: white;">
+                    <div class="card-header">
+                        <div>
+                            <div style="font-size: 3rem; font-weight: 700; margin-bottom: 0.5rem;" id="todayAppointments">0</div>
+                            <div class="card-title" style="color: white;">Today's Appointments</div>
+                        </div>
+                        <div class="card-icon" style="background: rgba(255,255,255,0.2);">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <div>
+                            <div style="font-size: 3rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--accent);" id="totalPatients">0</div>
+                            <div class="card-title">Total Patients</div>
+                        </div>
+                        <div class="card-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <div>
+                            <div style="font-size: 3rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--primary);" id="totalPrescriptions">0</div>
+                            <div class="card-title">Prescriptions Issued</div>
+                        </div>
+                        <div class="card-icon">
+                            <i class="fas fa-prescription"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Appointments List -->
+            <div class="dashboard-card mt-2">
+                <div class="card-header">
+                    <h2 class="card-title">Appointments</h2>
+                    <input type="text" id="searchAppointments" class="form-input" placeholder="Search appointments..." 
+                           style="max-width: 300px; padding: 0.7rem;" onkeyup="searchTable('searchAppointments', 'appointmentsTable')">
+                </div>
+                <div id="appointmentsList">
+                    <p>Loading appointments...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- View Patient Modal -->
+    <div id="patientModal" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Patient Details</h2>
+                <button class="close-modal" onclick="closeModal('patientModal')">&times;</button>
+            </div>
+            <div id="patientDetails">
+                <p>Loading patient details...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Prescription Modal -->
+    <div id="prescriptionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Generate Prescription</h2>
+                <button class="close-modal" onclick="closeModal('prescriptionModal')">&times;</button>
+            </div>
+            <form id="prescriptionForm" onsubmit="generatePrescription(event)">
+                <input type="hidden" name="appointment_id" id="prescriptionAppointmentId">
+                <input type="hidden" name="patient_id" id="prescriptionPatientId">
+                
+                <div class="form-group">
+                    <label class="form-label">Diagnosis *</label>
+                    <textarea name="diagnosis" class="form-textarea" placeholder="Enter diagnosis..." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Medications *</label>
+                    <textarea name="medications" class="form-textarea" placeholder="Enter medications with dosage and frequency..." required style="min-height: 150px;"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Instructions</label>
+                    <textarea name="instructions" class="form-textarea" placeholder="Enter additional instructions for the patient..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Follow-up Date</label>
+                    <input type="date" name="follow_up_date" class="form-input">
+                </div>
+                
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn-secondary" onclick="closeModal('prescriptionModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Generate Prescription</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        // Load doctor dashboard data
+        async function loadDoctorDashboard() {
+            try {
+                // Load appointments
+                const response = await fetch('appointment.php?action=list');
+                const appointments = await response.json();
+                
+                // Calculate today's appointments
+                const today = new Date().toISOString().split('T')[0];
+                const todayAppts = appointments.filter(apt => apt.appointment_date === today && apt.status === 'scheduled');
+                document.getElementById('todayAppointments').textContent = todayAppts.length;
+                
+                // Get unique patients
+                const uniquePatients = [...new Set(appointments.map(apt => apt.patient_id))];
+                document.getElementById('totalPatients').textContent = uniquePatients.length;
+                
+                // Get prescriptions count
+                const prescResponse = await fetch('presciption.php?action=doctor_prescriptions');
+                const prescriptions = await prescResponse.json();
+                document.getElementById('totalPrescriptions').textContent = prescriptions.length;
+                
+                // Display appointments
+                displayAppointments(appointments);
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+        
+        function displayAppointments(appointments) {
+            const container = document.getElementById('appointmentsList');
+            
+            if (appointments.length === 0) {
+                container.innerHTML = '<p class="text-center">No appointments found</p>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="data-table">
+                    <table id="appointmentsTable">
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${appointments.map(apt => `
+                                <tr>
+                                    <td><strong>${apt.patient_name}</strong><br><small>${apt.patient_phone}</small></td>
+                                    <td>${formatDate(apt.appointment_date)}</td>
+                                    <td>${formatTime(apt.appointment_time)}</td>
+                                    <td>${apt.reason}</td>
+                                    <td><span class="badge badge-${getStatusClass(apt.status)}">${apt.status}</span></td>
+                                    <td>
+                                        <button onclick="viewPatientDetails(${apt.patient_id})" class="btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem; margin-right: 0.5rem;">View Patient</button>
+                                        ${apt.status === 'scheduled' ? `<button onclick="openPrescriptionModal(${apt.id}, ${apt.patient_id})" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Prescribe</button>` : ''}
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
+        async function viewPatientDetails(patientId) {
+            try {
+                // Get patient summary
+                const response = await fetch(`medical_his.php?action=summary&patient_id=${patientId}`);
+                const summary = await response.json();
+                
+                const patient = summary.patient;
+                const conditions = summary.active_conditions;
+                const vitals = summary.latest_vitals;
+                
+                const detailsHtml = `
+                    <div class="dashboard-grid" style="margin-bottom: 2rem;">
+                        <div class="dashboard-card">
+                            <h3 style="color: var(--primary); margin-bottom: 1rem;">Patient Information</h3>
+                            <p><strong>Name:</strong> ${patient.full_name}</p>
+                            <p><strong>Email:</strong> ${patient.email}</p>
+                            <p><strong>Phone:</strong> ${patient.phone}</p>
+                            <p><strong>Address:</strong> ${patient.address || 'N/A'}</p>
+                        </div>
+                        
+                        ${vitals ? `
+                        <div class="dashboard-card">
+                            <h3 style="color: var(--primary); margin-bottom: 1rem;">Latest Vitals</h3>
+                            <p><strong>BP:</strong> ${vitals.blood_pressure || 'N/A'}</p>
+                            <p><strong>Heart Rate:</strong> ${vitals.heart_rate ? vitals.heart_rate + ' bpm' : 'N/A'}</p>
+                            <p><strong>Temperature:</strong> ${vitals.temperature ? vitals.temperature + '°F' : 'N/A'}</p>
+                            <p><strong>Weight:</strong> ${vitals.weight ? vitals.weight + ' kg' : 'N/A'}</p>
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <h3 style="color: var(--primary); margin-bottom: 1rem;">Active Medical Conditions</h3>
+                        ${conditions.length > 0 ? conditions.map(c => `
+                            <div style="padding: 1rem; background: var(--secondary); border-radius: 12px; margin-bottom: 1rem;">
+                                <h4 style="color: var(--text-dark);">${c.condition_name}</h4>
+                                <p><strong>Diagnosed:</strong> ${formatDate(c.diagnosis_date)}</p>
+                                <p><strong>Description:</strong> ${c.description}</p>
+                                <p><strong>Treatment:</strong> ${c.treatment}</p>
+                            </div>
+                        `).join('') : '<p>No active medical conditions</p>'}
+                    </div>
+                `;
+                
+                document.getElementById('patientDetails').innerHTML = detailsHtml;
+                openModal('patientModal');
+            } catch (error) {
+                console.error('Error loading patient details:', error);
+                showNotification('Error loading patient details', 'error');
+            }
+        }
+        
+        function openPrescriptionModal(appointmentId, patientId) {
+            document.getElementById('prescriptionAppointmentId').value = appointmentId;
+            document.getElementById('prescriptionPatientId').value = patientId;
+            openModal('prescriptionModal');
+        }
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDoctorDashboard();
+        });
+    </script>
+</body>
+</html>

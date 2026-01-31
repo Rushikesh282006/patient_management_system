@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediCare - Modern Medical Appointment System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                MediCare
+            </a>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <button class="btn-login" onclick="window.location.href='login.html'">Login</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section with Parallax -->
+    <section id="home" class="hero parallax-container">
+        <div class="hero-background">
+            <div class="hero-circle circle-1 parallax-element" data-speed="2"></div>
+            <div class="hero-circle circle-2 parallax-element" data-speed="3"></div>
+        </div>
+        
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>Your Health, Our Priority</h1>
+                <p>Experience modern healthcare with seamless appointment booking, comprehensive medical records, and personalized health insights.</p>
+                <div class="hero-buttons">
+                    <a href="login.html" class="btn-primary">Get Started</a>
+                    <a href="#features" class="btn-secondary">Learn More</a>
+                </div>
+            </div>
+            
+            <div class="hero-image">
+                <div class="hero-card parallax-element" data-speed="1">
+                    <div class="stat-grid">
+                        <div class="stat-item">
+                            <span class="stat-number">50K+</span>
+                            <span class="stat-label">Happy Patients</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">200+</span>
+                            <span class="stat-label">Expert Doctors</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">24/7</span>
+                            <span class="stat-label">Support Available</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">15+</span>
+                            <span class="stat-label">Specializations</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="section-header">
+            <h2 class="section-title">Comprehensive Healthcare Features</h2>
+            <p class="section-subtitle">Everything you need for modern healthcare management in one place</p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <h3>Easy Appointments</h3>
+                <p>Book appointments instantly with your preferred doctors. Patients and assistants can schedule visits with just a few clicks.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-file-medical"></i>
+                </div>
+                <h3>Medical History</h3>
+                <p>Access complete patient medical records, past diagnoses, treatments, and vital signs all in one secure location.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-prescription"></i>
+                </div>
+                <h3>Digital Prescriptions</h3>
+                <p>Generate professional prescriptions digitally and print them for hardcopy records. Quick, efficient, and error-free.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <h3>Health Tips</h3>
+                <p>Receive personalized health recommendations and tips based on your medical history and current health status.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <h3>Doctor Dashboard</h3>
+                <p>Comprehensive dashboard for doctors to manage appointments, view patient history, and track treatment progress.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Secure & Private</h3>
+                <p>Your medical data is encrypted and protected with industry-standard security measures ensuring complete privacy.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="features" style="background: white;">
+        <div class="section-header">
+            <h2 class="section-title">Why Choose MediCare?</h2>
+            <p class="section-subtitle">Modern healthcare technology meets compassionate care</p>
+        </div>
+        
+        <div class="features-grid" style="max-width: 1000px;">
+            <div class="feature-card">
+                <h3>For Patients</h3>
+                <ul style="list-style: none; padding: 0; color: var(--text-light);">
+                    <li style="padding: 0.5rem 0;"><i class="fas fa-check" style="color: var(--accent); margin-right: 0.5rem;"></i> Book appointments anytime</li>
+                    <li style="padding: 0.5rem 0;"><i class="fas fa-check" style="color: var(--accent); margin-right: 0.5rem;"></i> Access your medical records</li>
+                    <li style="padding: 0.5rem 0;"><i class="fas fa-check" style="color: var(--accent); margin-right: 0.5rem;"></i> Get personalized health tips</li>
+                    <li style="padding: 0.5rem 0;"><i class="fas fa-check" style="color: var(--accent); margin-right: 0.5rem;"></i> Download prescriptions</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h3>For Doctors</h3>
+                <ul style="list-style: none; padding: 0; color: var(--text-light);">
+                    <li style="padding: 0.5rem 0;"><i class="fas fa-check" style="color: var(--accent); margin-right: 0.5rem;"></i> Manage appointments efficiently</li>
+                    <li style="padding: 0.5rem 0;"><i class="fas fa-check" style="color: var(--accent); margin-right: 0.5rem;"></i> View patient history instantly</li>
+                    <li style="padding: 0.5rem 0;"><i class="fas fa-check" style="color: var(--accent); margin-right: 0.5rem;"></i> Generate digital prescriptions</li>
+                    <li style="padding: 0.5rem 0;"><i class="fas fa-check" style="color: var(--accent); margin-right: 0.5rem;"></i> Track patient progress</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h3>For Assistants</h3>
+                <ul style="list-style: none; padding: 0; color: var(--text-light);">
+                    <li style="padding: 0.5rem 0;"><i class="fas fa-check" style="color: var(--accent); margin-right: 0.5rem;"></i> Schedule appointments for patients</li>
+                    <li style="padding: 0.5rem 0;"><i class="fas fa-check" style="color: var(--accent); margin-right: 0.5rem;"></i> Manage doctor schedules</li>
+                    <li style="padding: 0.5rem 0;"><i class="fas fa-check" style="color: var(--accent); margin-right: 0.5rem;"></i> Update patient information</li>
+                    <li style="padding: 0.5rem 0;"><i class="fas fa-check" style="color: var(--accent); margin-right: 0.5rem;"></i> Coordinate care efficiently</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="features">
+        <div class="section-header">
+            <h2 class="section-title">Get In Touch</h2>
+            <p class="section-subtitle">Have questions? We're here to help</p>
+        </div>
+        
+        <div style="max-width: 600px; margin: 0 auto; background: white; padding: 3rem; border-radius: 24px; box-shadow: var(--shadow-md);">
+            <form>
+                <div class="form-group">
+                    <label class="form-label">Name</label>
+                    <input type="text" class="form-input" placeholder="Your name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" placeholder="your.email@example.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Message</label>
+                    <textarea class="form-textarea" placeholder="How can we help you?" required></textarea>
+                </div>
+                
+                <button type="submit" class="btn-primary" style="width: 100%;">Send Message</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer style="background: var(--primary-dark); color: white; padding: 3rem 2rem; text-align: center;">
+        <div style="max-width: 1400px; margin: 0 auto;">
+            <div class="logo" style="justify-content: center; margin-bottom: 1rem; color: white;">
+                <div class="logo-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                MediCare
+            </div>
+            <p style="margin-bottom: 1rem; opacity: 0.8;">Modern Healthcare Management System</p>
+            <div style="display: flex; gap: 2rem; justify-content: center; margin-bottom: 1rem;">
+                <a href="#" style="color: white; text-decoration: none;">Privacy Policy</a>
+                <a href="#" style="color: white; text-decoration: none;">Terms of Service</a>
+                <a href="#" style="color: white; text-decoration: none;">Support</a>
+            </div>
+            <p style="opacity: 0.6;">&copy; 2026 MediCare. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

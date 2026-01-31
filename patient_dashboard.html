@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard - MediCare</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                MediCare
+            </a>
+            <div style="display: flex; align-items: center; gap: 2rem;">
+                <span style="color: var(--text-dark);">Welcome, <strong id="patientName">Patient</strong></span>
+                <button class="btn-secondary" onclick="window.location.href='login.php?logout=1'" style="padding: 0.8rem 1.5rem;">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard -->
+    <section class="dashboard">
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <h1>Patient Dashboard</h1>
+                <p>Manage your health and appointments</p>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="dashboard-grid" style="margin-bottom: 3rem;">
+                <div class="dashboard-card" style="background: linear-gradient(135deg, #00DFA2 0%, #088395 100%); color: white; cursor: pointer;" onclick="openModal('appointmentModal')">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title" style="color: white; font-size: 1.8rem;">Book Appointment</div>
+                            <p style="margin-top: 0.5rem; opacity: 0.9;">Schedule a visit with your doctor</p>
+                        </div>
+                        <div class="card-icon" style="background: rgba(255,255,255,0.2);">
+                            <i class="fas fa-calendar-plus"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div style="margin-bottom: 2rem;">
+                <div style="display: flex; gap: 1rem; border-bottom: 2px solid var(--secondary);">
+                    <button class="tab-btn active" onclick="switchTab('appointments')" id="appointmentsTab">
+                        <i class="fas fa-calendar-check"></i> My Appointments
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('history')" id="historyTab">
+                        <i class="fas fa-file-medical"></i> Medical History
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('prescriptions')" id="prescriptionsTab">
+                        <i class="fas fa-prescription"></i> Prescriptions
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('tips')" id="tipsTab">
+                        <i class="fas fa-heartbeat"></i> Health Tips
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Content -->
+            <div id="appointmentsContent" class="tab-content active">
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h2 class="card-title">My Appointments</h2>
+                    </div>
+                    <div id="appointmentsList">
+                        <p>Loading appointments...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="historyContent" class="tab-content">
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Medical History</h2>
+                    </div>
+                    <div id="medicalHistoryList">
+                        <p>Loading medical history...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="prescriptionsContent" class="tab-content">
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h2 class="card-title">My Prescriptions</h2>
+                    </div>
+                    <div id="prescriptionsList">
+                        <p>Loading prescriptions...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tipsContent" class="tab-content">
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Personalized Health Tips</h2>
+                    </div>
+                    <div id="healthTipsList" class="health-tips">
+                        <p>Loading health tips...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Book Appointment Modal -->
+    <div id="appointmentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Book Appointment</h2>
+                <button class="close-modal" onclick="closeModal('appointmentModal')">&times;</button>
+            </div>
+            <form id="appointmentForm" onsubmit="createAppointment(event)">
+                <input type="hidden" name="patient_id" id="currentPatientId">
+                
+                <div class="form-group">
+                    <label class="form-label">Select Doctor *</label>
+                    <select name="doctor_id" class="form-select" id="doctorSelect" required>
+                        <option value="">Choose a doctor...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Appointment Date *</label>
+                    <input type="date" name="appointment_date" class="form-input" required min="">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Preferred Time *</label>
+                    <input type="time" name="appointment_time" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Reason for Visit *</label>
+                    <textarea name="reason" class="form-textarea" placeholder="Describe your symptoms or reason for visit..." required></textarea>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn-secondary" onclick="closeModal('appointmentModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Book Appointment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        let currentPatientId = null;
+        
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+                content.style.display = 'none';
+            });
+            
+            // Remove active from all tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected content
+            document.getElementById(tabName + 'Content').classList.add('active');
+            document.getElementById(tabName + 'Content').style.display = 'block';
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // Load data for the tab
+            switch(tabName) {
+                case 'history':
+                    if (currentPatientId) loadMedicalHistory(currentPatientId);
+                    break;
+                case 'prescriptions':
+                    if (currentPatientId) loadPrescriptions();
+                    break;
+                case 'tips':
+                    loadHealthTips();
+                    break;
+            }
+        }
+        
+        // Load patient dashboard data
+        async function loadPatientDashboard() {
+            try {
+                // This would normally come from session
+                // For demo, we'll use patient1's ID (4)
+                currentPatientId = 4;
+                document.getElementById('currentPatientId').value = currentPatientId;
+                
+                // Load doctors list
+                const doctorsResponse = await fetch('appointment.php?action=doctors');
+                const doctors = await doctorsResponse.json();
+                
+                const doctorSelect = document.getElementById('doctorSelect');
+                doctors.forEach(doctor => {
+                    const option = document.createElement('option');
+                    option.value = doctor.id;
+                    option.textContent = `Dr. ${doctor.full_name} - ${doctor.specialization}`;
+                    doctorSelect.appendChild(option);
+                });
+                
+                // Set minimum date to today
+                const today = new Date().toISOString().split('T')[0];
+                document.querySelector('input[name="appointment_date"]').min = today;
+                
+                // Load appointments
+                loadAppointments();
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+        
+        // Override loadAppointments to display in patient dashboard
+        async function loadAppointments() {
+            try {
+                const response = await fetch('appointment.php?action=list');
+                const appointments = await response.json();
+                
+                const container = document.getElementById('appointmentsList');
+                
+                if (appointments.length === 0) {
+                    container.innerHTML = '<p class="text-center">No appointments found. Book your first appointment!</p>';
+                    return;
+                }
+                
+                container.innerHTML = `
+                    <div class="data-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Doctor</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${appointments.map(apt => `
+                                    <tr>
+                                        <td><strong>${apt.doctor_name}</strong><br><small>${apt.specialization}</small></td>
+                                        <td>${formatDate(apt.appointment_date)}</td>
+                                        <td>${formatTime(apt.appointment_time)}</td>
+                                        <td>${apt.reason}</td>
+                                        <td><span class="badge badge-${getStatusClass(apt.status)}">${apt.status}</span></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading appointments:', error);
+            }
+        }
+        
+        async function loadPrescriptions() {
+            try {
+                const response = await fetch(`presciption.php?patient_id=${currentPatientId}`);
+                const prescriptions = await response.json();
+                
+                const container = document.getElementById('prescriptionsList');
+                
+                if (prescriptions.length === 0) {
+                    container.innerHTML = '<p>No prescriptions found</p>';
+                    return;
+                }
+                
+                container.innerHTML = prescriptions.map(presc => `
+                    <div class="dashboard-card" style="margin-bottom: 1.5rem;">
+                        <div class="card-header">
+                            <div>
+                                <h3 style="color: var(--primary); margin-bottom: 0.5rem;">Prescription from Dr. ${presc.doctor_name}</h3>
+                                <p style="color: var(--text-light);">${presc.specialization} • ${formatDate(presc.prescription_date)}</p>
+                            </div>
+                            <button onclick="printPrescription(${presc.id})" class="btn-primary" style="padding: 0.7rem 1.5rem;">
+                                <i class="fas fa-print"></i> Print
+                            </button>
+                        </div>
+                        <div style="margin-top: 1rem;">
+                            <p><strong>Diagnosis:</strong> ${presc.diagnosis}</p>
+                            <p style="margin-top: 0.5rem;"><strong>Medications:</strong></p>
+                            <div style="background: var(--secondary); padding: 1rem; border-radius: 12px; margin-top: 0.5rem; white-space: pre-wrap;">${presc.medications}</div>
+                            ${presc.follow_up_date ? `<p style="margin-top: 0.5rem;"><strong>Follow-up:</strong> ${formatDate(presc.follow_up_date)}</p>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading prescriptions:', error);
+            }
+        }
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPatientDashboard();
+        });
+    </script>
+    
+    <style>
+        .tab-btn {
+            padding: 1rem 2rem;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--text-light);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1rem;
+        }
+        
+        .tab-btn:hover {
+            color: var(--primary);
+        }
+        
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--accent);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeInUp 0.5s ease-out;
+        }
+    </style>
+</body>
+</html>

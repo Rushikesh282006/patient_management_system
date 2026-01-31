@@ -1,0 +1,24 @@
+# MediCare - Modern Medical Appointment System
+
+MediCare is a full-stack web application designed to streamline healthcare management by connecting Doctors, Patients, and Assistants in one unified platform.
+
+## 🚀 Key Features
+
+- **Doctor Dashboard**: Manage daily appointments, view patient medical history, and generate digital prescriptions.
+- **Assistant Dashboard**: Coordinate patient care, schedule appointments for any doctor, and send personalized health tips.
+- **Automated Health Insights**: Generates specific wellness tips based on a patient's active medical conditions (e.g., Hypertension, Diabetes).
+- **Digital Prescriptions**: Professional computer-generated prescription system with a dedicated print view.
+- **Medical Records**: Tracks patient vital signs (BP, Heart Rate, Temperature) and diagnostic history.
+
+## 🛠️ Technology Stack
+
+- **Frontend**: HTML5, CSS3 (Modern design with Parallax effects), JavaScript (Asynchronous Fetch API).
+- **Backend**: PHP (Role-based authentication and session management).
+- **Database**: MySQL.
+- **Libraries**: FontAwesome for iconography.
+
+## 📋 Installation & Setup
+
+1. **Clone the Repository**:
+   ```bash
+   git clone [https://github.com/your-username/medicare.git](https://github.com/your-username/medicare.git)

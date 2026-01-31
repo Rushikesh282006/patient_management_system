@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistant Dashboard - MediCare</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                MediCare
+            </a>
+            <div style="display: flex; align-items: center; gap: 2rem;">
+                <span style="color: var(--text-dark);">Welcome, <strong id="assistantName">Assistant</strong></span>
+                <button class="btn-secondary" onclick="window.location.href='php/login.php?logout=1'" style="padding: 0.8rem 1.5rem;">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard -->
+    <section class="dashboard">
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <h1>Assistant Dashboard</h1>
+                <p>Manage appointments and coordinate patient care</p>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="dashboard-grid" style="margin-bottom: 3rem;">
+                <div class="dashboard-card" style="background: linear-gradient(135deg, #00DFA2 0%, #088395 100%); color: white; cursor: pointer;" onclick="openModal('appointmentModal')">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title" style="color: white; font-size: 1.8rem;">Schedule Appointment</div>
+                            <p style="margin-top: 0.5rem; opacity: 0.9;">Book appointment for a patient</p>
+                        </div>
+                        <div class="card-icon" style="background: rgba(255,255,255,0.2);">
+                            <i class="fas fa-calendar-plus"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card" style="background: linear-gradient(135deg, #0A4D68 0%, #088395 100%); color: white; cursor: pointer;" onclick="openModal('addHealthTipModal')">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title" style="color: white; font-size: 1.8rem;">Add Health Tip</div>
+                            <p style="margin-top: 0.5rem; opacity: 0.9;">Send health tip to patient</p>
+                        </div>
+                        <div class="card-icon" style="background: rgba(255,255,255,0.2);">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Appointments List -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">All Appointments</h2>
+                    <div style="display: flex; gap: 1rem;">
+                        <input type="text" id="searchAppointments" class="form-input" placeholder="Search appointments..." 
+                               style="max-width: 300px; padding: 0.7rem;" onkeyup="searchTable('searchAppointments', 'appointmentsTable')">
+                        <select id="filterStatus" class="form-select" style="max-width: 200px;" onchange="filterAppointmentsByStatus()">
+                            <option value="">All Status</option>
+                            <option value="scheduled">Scheduled</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="appointmentsList">
+                    <p>Loading appointments...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Book Appointment Modal -->
+    <div id="appointmentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Schedule Appointment</h2>
+                <button class="close-modal" onclick="closeModal('appointmentModal')">&times;</button>
+            </div>
+            <form id="appointmentForm" onsubmit="createAppointment(event)">
+                <div class="form-group">
+                    <label class="form-label">Select Patient *</label>
+                    <select name="patient_id" class="form-select" id="patientSelect" required>
+                        <option value="">Choose a patient...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Select Doctor *</label>
+                    <select name="doctor_id" class="form-select" id="doctorSelect" required>
+                        <option value="">Choose a doctor...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Appointment Date *</label>
+                    <input type="date" name="appointment_date" class="form-input" required min="">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Appointment Time *</label>
+                    <input type="time" name="appointment_time" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Reason for Visit *</label>
+                    <textarea name="reason" class="form-textarea" placeholder="Enter reason for appointment..." required></textarea>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn-secondary" onclick="closeModal('appointmentModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Schedule Appointment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Health Tip Modal -->
+    <div id="addHealthTipModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Health Tip</h2>
+                <button class="close-modal" onclick="closeModal('addHealthTipModal')">&times;</button>
+            </div>
+            <form id="healthTipForm" onsubmit="addHealthTip(event)">
+                <div class="form-group">
+                    <label class="form-label">Select Patient *</label>
+                    <select name="patient_id" class="form-select" id="tipPatientSelect" required>
+                        <option value="">Choose a patient...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Category *</label>
+                    <input type="text" name="tip_category" class="form-input" placeholder="e.g., Diet, Exercise, Medication" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Tip Title *</label>
+                    <input type="text" name="tip_title" class="form-input" placeholder="Enter tip title..." required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Tip Content *</label>
+                    <textarea name="tip_content" class="form-textarea" placeholder="Enter health tip details..." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Priority *</label>
+                    <select name="priority" class="form-select" required>
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn-secondary" onclick="closeModal('addHealthTipModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Add Tip</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        let allAppointments = [];
+        
+        // Load assistant dashboard data
+        async function loadAssistantDashboard() {
+            try {
+                // Load doctors list
+                const doctorsResponse = await fetch('php/appointments.php?action=doctors');
+                const doctors = await doctorsResponse.json();
+                
+                const doctorSelect = document.getElementById('doctorSelect');
+                doctors.forEach(doctor => {
+                    const option = document.createElement('option');
+                    option.value = doctor.id;
+                    option.textContent = `Dr. ${doctor.full_name} - ${doctor.specialization}`;
+                    doctorSelect.appendChild(option);
+                });
+                
+                // Load patients list
+                const patientsResponse = await fetch('php/appointments.php?action=patients');
+                const patients = await patientsResponse.json();
+                
+                const patientSelect = document.getElementById('patientSelect');
+                const tipPatientSelect = document.getElementById('tipPatientSelect');
+                
+                patients.forEach(patient => {
+                    const option1 = document.createElement('option');
+                    option1.value = patient.id;
+                    option1.textContent = patient.full_name;
+                    patientSelect.appendChild(option1);
+                    
+                    const option2 = document.createElement('option');
+                    option2.value = patient.id;
+                    option2.textContent = patient.full_name;
+                    tipPatientSelect.appendChild(option2);
+                });
+                
+                // Set minimum date to today
+                const today = new Date().toISOString().split('T')[0];
+                document.querySelector('input[name="appointment_date"]').min = today;
+                
+                // Load appointments
+                loadAppointments();
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+        
+        // Override loadAppointments for assistant view
+        async function loadAppointments() {
+            try {
+                const response = await fetch('php/appointments.php?action=list');
+                allAppointments = await response.json();
+                
+                displayAppointments(allAppointments);
+            } catch (error) {
+                console.error('Error loading appointments:', error);
+            }
+        }
+        
+        function displayAppointments(appointments) {
+            const container = document.getElementById('appointmentsList');
+            
+            if (appointments.length === 0) {
+                container.innerHTML = '<p class="text-center">No appointments found</p>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="data-table">
+                    <table id="appointmentsTable">
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Doctor</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${appointments.map(apt => `
+                                <tr>
+                                    <td><strong>${apt.patient_name}</strong><br><small>${apt.patient_phone}</small></td>
+                                    <td><strong>${apt.doctor_name}</strong><br><small>${apt.specialization}</small></td>
+                                    <td>${formatDate(apt.appointment_date)}</td>
+                                    <td>${formatTime(apt.appointment_time)}</td>
+                                    <td>${apt.reason}</td>
+                                    <td><span class="badge badge-${getStatusClass(apt.status)}">${apt.status}</span></td>
+                                    <td>
+                                        ${apt.status === 'scheduled' ? `
+                                            <button onclick="updateAppointmentStatus(${apt.id}, 'cancelled')" class="btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Cancel</button>
+                                        ` : ''}
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
+        function filterAppointmentsByStatus() {
+            const status = document.getElementById('filterStatus').value;
+            
+            if (status === '') {
+                displayAppointments(allAppointments);
+            } else {
+                const filtered = allAppointments.filter(apt => apt.status === status);
+                displayAppointments(filtered);
+            }
+        }
+        
+        async function updateAppointmentStatus(appointmentId, status) {
+            if (!confirm('Are you sure you want to ' + status + ' this appointment?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('php/appointments.php', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `id=${appointmentId}&status=${status}`
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Appointment ' + status + ' successfully', 'success');
+                    loadAppointments();
+                } else {
+                    showNotification(result.message || 'Error updating appointment', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Server error occurred', 'error');
+            }
+        }
+        
+        async function addHealthTip(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            
+            try {
+                const response = await fetch('php/health-tips.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Health tip added successfully!', 'success');
+                    closeModal('addHealthTipModal');
+                    event.target.reset();
+                } else {
+                    showNotification(result.message || 'Error adding health tip', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Server error occurred', 'error');
+            }
+        }
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAssistantDashboard();
+        });
+    </script>
+</body>
+</html>

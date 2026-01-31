@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - MediCare</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                MediCare
+            </a>
+            <a href="index.html" class="btn-secondary" style="text-decoration: none; padding: 0.8rem 2rem;">Back to Home</a>
+        </div>
+    </nav>
+
+    <!-- Login Section -->
+    <section class="hero" style="min-height: 100vh;">
+        <div class="hero-background">
+            <div class="hero-circle circle-1 parallax-element" data-speed="2"></div>
+            <div class="hero-circle circle-2 parallax-element" data-speed="3"></div>
+        </div>
+        
+        <div style="max-width: 500px; margin: 0 auto; position: relative; z-index: 1; padding: 2rem;">
+            <div style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); padding: 3rem; border-radius: 24px; box-shadow: var(--shadow-lg);">
+                <h1 style="font-family: 'Crimson Pro', serif; font-size: 2.5rem; color: var(--primary); text-align: center; margin-bottom: 2rem;">Welcome Back</h1>
+                
+                <form action="login.php" method="POST">
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <input type="text" name="username" class="form-input" placeholder="Enter your username" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" name="password" class="form-input" placeholder="Enter your password" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Login As</label>
+                        <select name="role" class="form-select" required>
+                            <option value="">Select Role</option>
+                            <option value="doctor">Doctor</option>
+                            <option value="patient">Patient</option>
+                            <option value="assistant">Assistant</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Login</button>
+                </form>
+                
+                <p style="text-align: center; margin-top: 1.5rem; color: var(--text-light);">
+                    Don't have an account? <a href="register.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">Register</a>
+                </p>
+                
+                <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid rgba(0,0,0,0.1);">
+                    <p style="text-align: center; font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem;">Demo Credentials:</p>
+                    <div style="background: var(--secondary); padding: 1rem; border-radius: 12px; font-size: 0.85rem;">
+                        <p><strong>Doctor:</strong> dr_sharma / password123</p>
+                        <p><strong>Patient:</strong> patient1 / password123</p>
+                        <p><strong>Assistant:</strong> assistant1 / password123</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
