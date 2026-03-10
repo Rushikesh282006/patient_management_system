@@ -17,22 +17,22 @@
                 </div>
                 MediCare
             </a>
-            <a href="index.html" class="btn-secondary" style="text-decoration: none; padding: 0.8rem 2rem;">Back to Home</a>
+            <a href="index.html" class="btn-primary" style="text-decoration: none; padding: 0.8rem 2rem;"><i class="fas fa-arrow-left"></i><span class="hide-on-mobile" style="margin-left: 0.5rem;">Back to Home</span></a>
         </div>
     </nav>
 
     <!-- Login Section -->
-    <section class="hero" style="min-height: 100vh;">
+    <section class="auth-section">
         <div class="hero-background">
-            <div class="hero-circle circle-1 parallax-element" data-speed="2"></div>
-            <div class="hero-circle circle-2 parallax-element" data-speed="3"></div>
+            <div class="hero-circle circle-1" data-speed="2"></div>
+            <div class="hero-circle circle-2" data-speed="3"></div>
         </div>
         
-        <div style="max-width: 500px; margin: 0 auto; position: relative; z-index: 1; padding: 2rem;">
-            <div style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); padding: 3rem; border-radius: 24px; box-shadow: var(--shadow-lg);">
+        <div class="auth-wrapper login-wrapper">
+            <div class="auth-card">
                 <h1 style="font-family: 'Crimson Pro', serif; font-size: 2.5rem; color: var(--primary); text-align: center; margin-bottom: 2rem;">Welcome Back</h1>
                 
-                <form action="login.php" method="POST">
+                <form action="php/login.php" method="POST">
                     <div class="form-group">
                         <label class="form-label">Username</label>
                         <input type="text" name="username" class="form-input" placeholder="Enter your username" required>
@@ -60,13 +60,13 @@
                     Don't have an account? <a href="register.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">Register</a>
                 </p>
                 
-                <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid rgba(0,0,0,0.1);">
-                    <p style="text-align: center; font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem;">Demo Credentials:</p>
+                <!-- <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid rgba(0,0,0,0.1);"> -->
+                    <!-- <p style="text-align: center; font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem;">Demo Credentials:</p>
                     <div style="background: var(--secondary); padding: 1rem; border-radius: 12px; font-size: 0.85rem;">
                         <p><strong>Doctor:</strong> dr_sharma / password123</p>
                         <p><strong>Patient:</strong> patient1 / password123</p>
                         <p><strong>Assistant:</strong> assistant1 / password123</p>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>

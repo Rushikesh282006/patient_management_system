@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['patient_id'])) {
 }
 
 // Add Medical History Record
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['action']) || $_POST['action'] !== 'add_vitals')) {
     $patient_id = mysqli_real_escape_string($conn, $_POST['patient_id']);
     $condition_name = mysqli_real_escape_string($conn, $_POST['condition_name']);
     $diagnosis_date = mysqli_real_escape_string($conn, $_POST['diagnosis_date']);

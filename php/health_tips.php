@@ -120,6 +120,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['action'])) {
         $tips = $general_tips;
     }
     
+    // Fetch manually added health tips from the database
+    $manual_tips_query = "SELECT tip_category, tip_title, tip_content, priority FROM health_tips WHERE patient_id = '$patient_id' ORDER BY created_at DESC";
+    $manual_tips_result = mysqli_query($conn, $manual_tips_query);
+    
+    if ($manual_tips_result) {
+        while ($manual_tip = mysqli_fetch_assoc($manual_tips_result)) {
+            // Prepend manual tips so they appear at the top
+            array_unshift($tips, $manual_tip);
+        }
+    }
+    
     echo json_encode($tips);
     exit();
 }

@@ -1,42 +1,65 @@
 // Medical Appointment System - JavaScript
 
-// Parallax Effect
+// Cache elements to prevent repetitive DOM queries
+const parallaxElements = document.querySelectorAll('.parallax-element');
+let paramMouseX = 0;
+let paramMouseY = 0;
+let isMouseMoving = false;
+
+// Optimize Parallax Effect with requestAnimationFrame
 document.addEventListener('mousemove', (e) => {
-    const parallaxElements = document.querySelectorAll('.parallax-element');
-    const mouseX = e.clientX / window.innerWidth;
-    const mouseY = e.clientY / window.innerHeight;
-    
-    parallaxElements.forEach((element) => {
-        const speed = element.getAttribute('data-speed') || 5;
-        const x = (window.innerWidth - e.pageX * speed) / 100;
-        const y = (window.innerHeight - e.pageY * speed) / 100;
-        
-        element.style.transform = `translateX(${x}px) translateY(${y}px)`;
-    });
+    paramMouseX = e.pageX;
+    paramMouseY = e.pageY;
+    if (!isMouseMoving && parallaxElements.length > 0) {
+        window.requestAnimationFrame(updateMouseParallax);
+        isMouseMoving = true;
+    }
 });
 
-// Scroll Parallax
-let lastScrollTop = 0;
+function updateMouseParallax() {
+    parallaxElements.forEach((element) => {
+        // Prevent jank by doing hardware accelerated translates
+        const speed = element.getAttribute('data-speed') || 5;
+        const x = (window.innerWidth - paramMouseX * speed) / 100;
+        const y = (window.innerHeight - paramMouseY * speed) / 100;
+        
+        element.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+    });
+    isMouseMoving = false;
+}
+
+// Optimize Scroll Events with requestAnimationFrame
+const navbar = document.querySelector('.navbar');
+const parallaxBgs = document.querySelectorAll('.parallax-bg');
+let isScrolling = false;
+
 window.addEventListener('scroll', () => {
+    if (!isScrolling) {
+        window.requestAnimationFrame(updateScrollEvents);
+        isScrolling = true;
+    }
+});
+
+function updateScrollEvents() {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const navbar = document.querySelector('.navbar');
     
     // Navbar scroll effect
-    if (scrollTop > 50) {
-        navbar.classList.add('scrolled');
-    } else {
-        navbar.classList.remove('scrolled');
+    if (navbar) {
+        if (scrollTop > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
     }
     
     // Parallax background
-    const parallaxBg = document.querySelectorAll('.parallax-bg');
-    parallaxBg.forEach((bg) => {
+    parallaxBgs.forEach((bg) => {
         const speed = 0.5;
-        bg.style.transform = `translateY(${scrollTop * speed}px)`;
+        bg.style.transform = `translate3d(0, ${scrollTop * speed}px, 0)`;
     });
     
-    lastScrollTop = scrollTop;
-});
+    isScrolling = false;
+}
 
 // Smooth Scrolling
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -129,7 +152,7 @@ async function createAppointment(event) {
     const formData = new FormData(event.target);
     
     try {
-        const response = await fetch('appointment.php', {
+        const response = await fetch('php/appointment.php', {
             method: 'POST',
             body: formData
         });
@@ -153,7 +176,7 @@ async function createAppointment(event) {
 // Load Appointments
 async function loadAppointments() {
     try {
-        const response = await fetch('appointment.php?action=list');
+        const response = await fetch('php/appointment.php?action=list');
         const appointments = await response.json();
         
         const container = document.getElementById('appointmentsList');
@@ -165,33 +188,35 @@ async function loadAppointments() {
         }
         
         container.innerHTML = `
-            <div class="data-table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Patient</th>
-                            <th>Doctor</th>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${appointments.map(apt => `
+            <div class="data-table-wrapper">
+                <div class="data-table">
+                    <table>
+                        <thead>
                             <tr>
-                                <td>${apt.patient_name}</td>
-                                <td>${apt.doctor_name}</td>
-                                <td>${formatDate(apt.appointment_date)}</td>
-                                <td>${formatTime(apt.appointment_time)}</td>
-                                <td><span class="badge badge-${getStatusClass(apt.status)}">${apt.status}</span></td>
-                                <td>
-                                    <button onclick="viewAppointment(${apt.id})" class="btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">View</button>
-                                </td>
+                                <th>Patient</th>
+                                <th>Doctor</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                                <th>Actions</th>
                             </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            ${appointments.map(apt => `
+                                <tr>
+                                    <td>${apt.patient_name}</td>
+                                    <td>${apt.doctor_name}</td>
+                                    <td>${formatDate(apt.appointment_date)}</td>
+                                    <td>${formatTime(apt.appointment_time)}</td>
+                                    <td><span class="badge badge-${getStatusClass(apt.status)}">${apt.status}</span></td>
+                                    <td>
+                                        <button onclick="viewAppointment(${apt.id})" class="btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">View</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         `;
     } catch (error) {
@@ -202,7 +227,7 @@ async function loadAppointments() {
 // View Appointment Details
 async function viewAppointment(id) {
     try {
-        const response = await fetch(`appointment.php?id=${id}`);
+        const response = await fetch(`php/appointment.php?id=${id}`);
         const apt = await response.json();
         
         if (apt.success === false) {
@@ -226,7 +251,7 @@ async function viewAppointment(id) {
 // Load Medical History
 async function loadMedicalHistory(patientId) {
     try {
-        const response = await fetch(`medical_his.php?patient_id=${patientId}`);
+        const response = await fetch(`php/medical_his.php?patient_id=${patientId}`);
         const history = await response.json();
         
         const container = document.getElementById('medicalHistoryList');
@@ -266,7 +291,7 @@ async function generatePrescription(event) {
     const formData = new FormData(event.target);
     
     try {
-        const response = await fetch('presciption.php', {
+        const response = await fetch('php/prescription.php', {
             method: 'POST',
             body: formData
         });
@@ -293,13 +318,13 @@ async function generatePrescription(event) {
 
 // Print Prescription
 function printPrescription(prescriptionId) {
-    window.open(`print_pres.php?id=${prescriptionId}`, '_blank');
+    window.open(`php/print_pres.php?id=${prescriptionId}`, '_blank');
 }
 
 // Load Health Tips
 async function loadHealthTips() {
     try {
-        const response = await fetch('health_tips.php');
+        const response = await fetch('php/health_tips.php');
         const tips = await response.json();
         
         const container = document.getElementById('healthTipsList');
@@ -441,6 +466,72 @@ function searchTable(inputId, tableId) {
     }
 }
 
+// Add Vitals
+async function addVitals(event) {
+    event.preventDefault();
+    if (!validateForm('vitalsForm')) {
+        showNotification('Please fill all required fields', 'error');
+        return;
+    }
+    const formData = new FormData(event.target);
+    try {
+        const response = await fetch('php/medical_his.php', {
+            method: 'POST',
+            body: formData
+        });
+        const result = await response.json();
+        if (result.success) {
+            showNotification('Vitals saved successfully!', 'success');
+            closeModal('vitalsModal');
+            event.target.reset();
+            // Refresh patient view modal
+            viewPatientDetails(formData.get('patient_id'));
+        } else {
+            showNotification(result.message || 'Error saving vitals', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Server error occurred', 'error');
+    }
+}
+
+// Add Medical History
+async function addMedicalHistory(event) {
+    event.preventDefault();
+    if (!validateForm('historyForm')) {
+        showNotification('Please fill all required fields', 'error');
+        return;
+    }
+    const formData = new FormData(event.target);
+    try {
+        const response = await fetch('php/medical_his.php', {
+            method: 'POST',
+            body: formData
+        });
+        const result = await response.json();
+        if (result.success) {
+            showNotification('Medical history saved successfully!', 'success');
+            closeModal('historyModal');
+            event.target.reset();
+            // Refresh patient view modal
+            viewPatientDetails(formData.get('patient_id'));
+        } else {
+            showNotification(result.message || 'Error saving history', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Server error occurred', 'error');
+    }
+}
+
+// Mobile Menu Toggle
+function toggleMenu() {
+    const navLinks = document.getElementById('navLinks');
+    if (navLinks) {
+        navLinks.classList.toggle('active');
+    }
+}
+
 // Export functions for global use
 window.openModal = openModal;
 window.closeModal = closeModal;
@@ -453,3 +544,6 @@ window.loadHealthTips = loadHealthTips;
 window.printPrescription = printPrescription;
 window.searchTable = searchTable;
 window.showNotification = showNotification;
+window.addVitals = addVitals;
+window.addMedicalHistory = addMedicalHistory;
+window.toggleMenu = toggleMenu;
