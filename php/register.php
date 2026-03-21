@@ -12,9 +12,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $confirm_password = $_POST["confirm_password"];
     $role = trim($_POST["role"]);
     $specialization = isset($_POST["specialization"]) ? trim($_POST["specialization"]) : "";
+    $gender = isset($_POST["gender"]) ? trim($_POST["gender"]) : "";
+    $dob = isset($_POST["dob"]) ? trim($_POST["dob"]) : "";
+    $address = isset($_POST["address"]) ? trim($_POST["address"]) : "";
+    $blood_group = isset($_POST["blood_group"]) ? trim($_POST["blood_group"]) : "";
     
     // Validate required fields
-    if (empty($full_name) || empty($username) || empty($email) || empty($phone) || empty($password) || empty($confirm_password) || empty($role)) {
+    if (empty($full_name) || empty($username) || empty($email) || empty($phone) || empty($password) || empty($confirm_password) || empty($role) || empty($gender) || empty($dob)) {
         header("Location: ../register.html?error=" . urlencode("Please fill in all required fields."));
         exit();
     }
@@ -44,10 +48,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
     
     // Insert into database
-    $insert_sql = "INSERT INTO users (full_name, username, email, phone, password, role, specialization) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    $insert_sql = "INSERT INTO users (full_name, username, email, phone, password, role, specialization, gender, dob, address, blood_group) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
     if ($stmt = $conn->prepare($insert_sql)) {
-        $stmt->bind_param("sssssss", $full_name, $username, $email, $phone, $hashed_password, $role, $specialization);
+        $stmt->bind_param("sssssssssss", $full_name, $username, $email, $phone, $hashed_password, $role, $specialization, $gender, $dob, $address, $blood_group);
         
         if ($stmt->execute()) {
             // Success! Redirect to login

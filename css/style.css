@@ -561,6 +561,25 @@ body {
     box-shadow: 0 0 0 4px var(--accent-glow);
 }
 
+/* Custom error class for JS validation with red glowing effect */
+@keyframes errorGlow {
+    0% { box-shadow: 0 0 5px rgba(255, 77, 77, 0.5); border-color: #ff4d4d !important; }
+    50% { box-shadow: 0 0 15px rgba(255, 0, 0, 0.8); border-color: #ff0000 !important; }
+    100% { box-shadow: 0 0 5px rgba(255, 77, 77, 0.5); border-color: #ff4d4d !important; }
+}
+
+.form-input.input-error,
+.form-select.input-error,
+.form-textarea.input-error,
+.form-input.input-error:focus,
+.form-select.input-error:focus,
+.form-textarea.input-error:focus {
+    border-color: #ff4d4d !important;
+    box-shadow: 0 0 10px rgba(255, 77, 77, 0.6) !important;
+    animation: errorGlow 1.5s infinite ease-in-out !important;
+    outline: none !important;
+}
+
 .form-textarea {
     resize: vertical;
     min-height: 120px;
