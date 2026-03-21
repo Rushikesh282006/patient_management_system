@@ -545,6 +545,10 @@ body {
     font-weight: 500;
 }
 
+.required {
+    color: #E91717;
+}
+
 .form-input, .form-select, .form-textarea {
     width: 100%;
     padding: 1rem;
