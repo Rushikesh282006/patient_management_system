@@ -48,10 +48,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
     
     // Insert into database
-    $insert_sql = "INSERT INTO users (full_name, username, email, phone, password, role, specialization, gender, dob, address, blood_group) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $insert_sql = "INSERT INTO users (full_name, username, email, phone, password, role, specialization, gender, date_of_birth, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
     if ($stmt = $conn->prepare($insert_sql)) {
-        $stmt->bind_param("sssssssssss", $full_name, $username, $email, $phone, $hashed_password, $role, $specialization, $gender, $dob, $address, $blood_group);
+        $stmt->bind_param("ssssssssss", $full_name, $username, $email, $phone, $hashed_password, $role, $specialization, $gender, $dob, $address);
         
         if ($stmt->execute()) {
             // Success! Redirect to login

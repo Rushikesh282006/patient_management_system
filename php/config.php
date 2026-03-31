@@ -22,5 +22,5 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Timezone
-date_default_timezone_set('Asia/Mumbai');
+date_default_timezone_set('Asia/Kolkata');
 ?>
