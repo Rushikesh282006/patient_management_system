@@ -151,7 +151,10 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'patient') {
                     <label class="form-label">Reason for Visit *</label>
                     <textarea name="reason" class="form-textarea" placeholder="Describe your symptoms or reason for visit..." required></textarea>
                 </div>
-                
+                <div class="form-group">
+                    <label class="form-label">Symptoms *</label>
+                    <input type="text" name="symptoms" class="form-input" placeholder="Enter symptoms" required>
+                </div>
                 <div style="display: flex; gap: 1rem; justify-content: flex-end;">
                     <button type="button" class="btn-secondary" onclick="closeModal('appointmentModal')">Cancel</button>
                     <button type="submit" class="btn-primary">Book Appointment</button>

@@ -16,6 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $appointment_date = mysqli_real_escape_string($conn, $_POST['appointment_date']);
     $appointment_time = mysqli_real_escape_string($conn, $_POST['appointment_time']);
     $reason = mysqli_real_escape_string($conn, $_POST['reason']);
+    $symptoms = mysqli_real_escape_string($conn, $_POST['symptoms']);
     $created_by = $_SESSION['user_id'];
     
     // Check if time slot is available
@@ -31,8 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
     
-    $query = "INSERT INTO appointments (patient_id, doctor_id, appointment_date, appointment_time, reason, created_by) 
-              VALUES ('$patient_id', '$doctor_id', '$appointment_date', '$appointment_time', '$reason', '$created_by')";
+    $query = "INSERT INTO appointments (patient_id, doctor_id, appointment_date, appointment_time, reason, symptoms, created_by) 
+          VALUES ('$patient_id', '$doctor_id', '$appointment_date', '$appointment_time', '$reason', '$symptoms', '$created_by')";
     
     if (mysqli_query($conn, $query)) {
         echo json_encode(['success' => true, 'message' => 'Appointment created successfully']);
@@ -115,6 +116,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
         echo json_encode(['success' => true, 'message' => 'Appointment updated successfully']);
     } else {
         echo json_encode(['success' => false, 'message' => 'Error updating appointment']);
+    }
+    exit();
+}
+// Delete Appointment
+if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    parse_str(file_get_contents("php://input"), $_DELETE);
+    
+    $id = mysqli_real_escape_string($conn, $_DELETE['id']);
+    
+    $query = "DELETE FROM appointments WHERE id = '$id'";
+    
+    if (mysqli_query($conn, $query)) {
+        echo json_encode(['success' => true, 'message' => 'Appointment deleted successfully']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Error deleting appointment']);
     }
     exit();
 }
