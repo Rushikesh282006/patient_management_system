@@ -7,7 +7,7 @@
         function searchPatient() {
             let name = document.getElementById("name").value;
 
-            fetch("search_patient.php?name=" + name)
+            fetch("php/search_patient.php?name=" + name)
                 .then(response => response.json())
                 .then(data => {
                     let output = "";
