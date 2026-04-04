@@ -83,7 +83,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'doctor') {
                 <div class="card-header">
                     <h2 class="card-title">Appointments</h2>
                     <input type="text" id="searchAppointments" class="form-input" placeholder="Search appointments..." 
-                           style="max-width: 300px; padding: 0.7rem;" onkeyup="searchTable('searchAppointments', 'appointmentsTable')">
+                           style="max-width: 300px; padding: 0.7rem;" oninput="searchAppointmentsAjax(this.value)">
                 </div>
                 <div id="appointmentsList">
                     <p>Loading appointments...</p>
@@ -245,12 +245,25 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'doctor') {
 
     <script src="js/main.js"></script>
     <script>
+        // Debounce function to limit AJAX requests
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        // AJAX search implementation
+        const searchAppointmentsAjax = debounce(async (searchTerm) => {
+            await loadAppointments(searchTerm);
+        }, 300);
+
         // Load doctor dashboard data
         async function loadDoctorDashboard() {
             try {
-                // Load appointments
-                const response = await fetch('php/appointment.php?action=list');
-                const appointments = await response.json();
+                // Load all appointments initially to calculate stats
+                const appointments = await loadAppointments();
                 
                 // Calculate today's appointments
                 const today = new Date().toISOString().split('T')[0];
@@ -265,11 +278,20 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'doctor') {
                 const prescResponse = await fetch('php/prescription.php?action=doctor_prescriptions');
                 const prescriptions = await prescResponse.json();
                 document.getElementById('totalPrescriptions').textContent = prescriptions.length;
-                
-                // Display appointments
-                displayAppointments(appointments);
             } catch (error) {
                 console.error('Error loading dashboard:', error);
+            }
+        }
+
+        async function loadAppointments(search = '') {
+            try {
+                const response = await fetch(`php/appointment.php?action=list&search=${encodeURIComponent(search)}`);
+                const appointments = await response.json();
+                displayAppointments(appointments);
+                return appointments;
+            } catch (error) {
+                console.error('Error loading appointments:', error);
+                return [];
             }
         }
         

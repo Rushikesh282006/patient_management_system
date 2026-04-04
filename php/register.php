@@ -1,6 +1,7 @@
 <?php
 // Include config file
 require_once "config.php";
+header('Content-Type: application/json');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Collect and sanitize input
@@ -19,13 +20,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     // Validate required fields
     if (empty($full_name) || empty($username) || empty($email) || empty($phone) || empty($password) || empty($confirm_password) || empty($role) || empty($gender) || empty($dob)) {
-        header("Location: ../register.html?error=" . urlencode("Please fill in all required fields."));
+        echo json_encode(["success" => false, "message" => "Please fill in all required fields."]);
         exit();
     }
     
     // Check if passwords match
     if ($password !== $confirm_password) {
-        header("Location: ../register.html?error=" . urlencode("Passwords do not match."));
+        echo json_encode(["success" => false, "message" => "Passwords do not match."]);
         exit();
     }
     
@@ -37,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->store_result();
         
         if ($stmt->num_rows > 0) {
-            header("Location: ../register.html?error=" . urlencode("Username or email already exists."));
+            echo json_encode(["success" => false, "message" => "Username or email already exists."]);
             $stmt->close();
             exit();
         }
@@ -54,18 +55,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param("sssssssssss", $full_name, $username, $email, $phone, $hashed_password, $role, $specialization, $gender, $dob, $address, $blood_group);
         
         if ($stmt->execute()) {
-            // Success! Redirect to login
-            echo "<script>alert('Registration successful! Please login.'); window.location.href='../login.html';</script>";
+            echo json_encode(["success" => true, "message" => "Registration successful! Please login."]);
         } else {
-            header("Location: ../register.html?error=" . urlencode("Something went wrong. Please try again."));
+            echo json_encode(["success" => false, "message" => "Something went wrong. Please try again."]);
         }
         $stmt->close();
+    } else {
+        echo json_encode(["success" => false, "message" => "Database error: " . $conn->error]);
     }
     
     $conn->close();
 } else {
-    // If accessed via GET, redirect to register page
-    header("Location: ../register.html");
+    // If accessed via GET
+    echo json_encode(["success" => false, "message" => "Invalid request method."]);
     exit();
 }
 ?>

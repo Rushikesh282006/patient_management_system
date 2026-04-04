@@ -485,7 +485,7 @@ async function addVitals(event) {
             closeModal('vitalsModal');
             event.target.reset();
             // Refresh patient view modal
-            viewPatientDetails(formData.get('patient_id'));
+            if (typeof viewPatientDetails === 'function') viewPatientDetails(formData.get('patient_id'));
         } else {
             showNotification(result.message || 'Error saving vitals', 'error');
         }
@@ -514,7 +514,7 @@ async function addMedicalHistory(event) {
             closeModal('historyModal');
             event.target.reset();
             // Refresh patient view modal
-            viewPatientDetails(formData.get('patient_id'));
+            if (typeof viewPatientDetails === 'function') viewPatientDetails(formData.get('patient_id'));
         } else {
             showNotification(result.message || 'Error saving history', 'error');
         }
@@ -529,6 +529,78 @@ function toggleMenu() {
     const navLinks = document.getElementById('navLinks');
     if (navLinks) {
         navLinks.classList.toggle('active');
+    }
+}
+
+// AJAX Login
+async function handleLogin(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn.innerHTML;
+    
+    // Loading state
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+    submitBtn.disabled = true;
+    
+    try {
+        const response = await fetch('php/login.php', {
+            method: 'POST',
+            body: formData
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification(result.message || 'Login successful!', 'success');
+            setTimeout(() => {
+                window.location.href = result.redirect;
+            }, 1000);
+        } else {
+            showNotification(result.message || 'Invalid credentials', 'error');
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Server error occurred', 'error');
+        submitBtn.innerHTML = originalBtnText;
+        submitBtn.disabled = false;
+    }
+}
+
+// AJAX Register
+async function handleRegister(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn.innerHTML;
+    
+    // Loading state
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+    submitBtn.disabled = true;
+    
+    try {
+        const response = await fetch('php/register.php', {
+            method: 'POST',
+            body: formData
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification(result.message || 'Registration successful!', 'success');
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 2000);
+        } else {
+            showNotification(result.message || 'Registration failed', 'error');
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Server error occurred', 'error');
+        submitBtn.innerHTML = originalBtnText;
+        submitBtn.disabled = false;
     }
 }
 
@@ -547,3 +619,5 @@ window.showNotification = showNotification;
 window.addVitals = addVitals;
 window.addMedicalHistory = addMedicalHistory;
 window.toggleMenu = toggleMenu;
+window.handleLogin = handleLogin;
+window.handleRegister = handleRegister;

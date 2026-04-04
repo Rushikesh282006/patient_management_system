@@ -47,6 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['action'] === 'list') {
     $user_id = $_SESSION['user_id'];
     $role = $_SESSION['role'];
+    $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
     
     $query = "SELECT a.*, 
               p.full_name as patient_name, p.phone as patient_phone,
@@ -62,6 +63,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
         $query .= "a.patient_id = '$user_id'";
     } else {
         $query .= "1=1"; // Assistant can see all
+    }
+    
+    if (!empty($search)) {
+        $query .= " AND (p.full_name LIKE '%$search%' 
+                     OR d.full_name LIKE '%$search%' 
+                     OR d.specialization LIKE '%$search%' 
+                     OR a.reason LIKE '%$search%')";
     }
     
     $query .= " ORDER BY a.appointment_date DESC, a.appointment_time DESC";

@@ -72,7 +72,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'assistant') {
                     <h2 class="card-title">All Appointments</h2>
                     <div style="display: flex; gap: 1rem;">
                         <input type="text" id="searchAppointments" class="form-input" placeholder="Search appointments..." 
-                               style="max-width: 300px; padding: 0.7rem;" onkeyup="searchTable('searchAppointments', 'appointmentsTable')">
+                               style="max-width: 300px; padding: 0.7rem;" oninput="searchAppointmentsAjax(this.value)">
                         <select id="filterStatus" class="form-select" style="max-width: 200px;" onchange="filterAppointmentsByStatus()">
                             <option value="">All Status</option>
                             <option value="scheduled">Scheduled</option>
@@ -229,10 +229,24 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'assistant') {
             }
         }
         
+        // Debounce function to limit AJAX requests
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        // AJAX search implementation
+        const searchAppointmentsAjax = debounce(async (searchTerm) => {
+            await loadAppointments(searchTerm);
+        }, 300);
+
         // Override loadAppointments for assistant view
-        async function loadAppointments() {
+        async function loadAppointments(search = '') {
             try {
-                const response = await fetch('php/appointment.php?action=list');
+                const response = await fetch(`php/appointment.php?action=list&search=${encodeURIComponent(search)}`);
                 allAppointments = await response.json();
                 
                 displayAppointments(allAppointments);
