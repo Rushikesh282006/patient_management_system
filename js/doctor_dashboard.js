@@ -51,12 +51,12 @@ function displayAppointments(appointments) {
                     <tbody>
                         ${appointments.map(apt => `
                             <tr>
-                                <td><strong>${apt.patient_name}</strong><br><small>${apt.patient_phone}</small></td>
-                                <td>${formatDate(apt.appointment_date)}</td>
-                                <td>${formatTime(apt.appointment_time)}</td>
-                                <td>${apt.reason}</td>
-                                <td><span class="badge badge-${getStatusClass(apt.status)}">${apt.status}</span></td>
-                                <td>
+                                <td data-label="Patient:"><strong>${apt.patient_name}</strong><br><small>${apt.patient_phone}</small></td>
+                                <td data-label="Date:">${formatDate(apt.appointment_date)}</td>
+                                <td data-label="Time:">${formatTime(apt.appointment_time)}</td>
+                                <td data-label="Reason:">${apt.reason}</td>
+                                <td data-label="Status:"><span class="badge badge-${getStatusClass(apt.status)}">${apt.status}</span></td>
+                                <td data-label="Actions:">
                                     <button onclick="viewPatientDetails(${apt.patient_id})" class="btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem; margin-right: 0.5rem;">View Patient</button>
                                     ${apt.status === 'scheduled' ? `<button onclick="openPrescriptionModal(${apt.id}, ${apt.patient_id})" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Prescribe</button>` : ''}
                                 </td>

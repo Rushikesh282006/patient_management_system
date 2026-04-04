@@ -12,6 +12,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'assistant') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Assistant Dashboard - MediCare</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/plugins/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -117,7 +118,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'assistant') {
                 
                 <div class="form-group">
                     <label class="form-label">Appointment Time *</label>
-                    <input type="time" name="appointment_time" class="form-input" required>
+                    <input type="text" name="appointment_time" class="form-input time-picker" placeholder="Select time..." required>
                 </div>
                 
                 <div class="form-group">
@@ -185,6 +186,43 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'assistant') {
         </div>
     </div>
 
+    <!-- Cancellation Reason Modal -->
+    <div id="cancellationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Cancel Appointment</h2>
+                <button class="close-modal" onclick="closeModal('cancellationModal')">&times;</button>
+            </div>
+            <form id="cancellationForm" onsubmit="submitCancellation(event)">
+                <input type="hidden" name="appointment_id" id="cancelAppointmentId">
+                <div class="form-group">
+                    <label class="form-label">Reason for Cancellation *</label>
+                    <textarea name="cancellation_reason" class="form-textarea" placeholder="Describe the reason for cancellation (e.g., Doctor is unavailable)..." required></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn-secondary" onclick="closeModal('cancellationModal')">Go Back</button>
+                    <button type="submit" class="btn-primary" style="background: var(--primary); color: white;">Confirm Cancellation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="js/plugins/flatpickr.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+             flatpickr("input[type=date]", {
+                dateFormat: "Y-m-d",
+                minDate: "today"
+            });
+            
+            flatpickr(".time-picker", {
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: "h:i K",
+                time_24hr: false
+            });
+        });
+    </script>
     <script src="js/main.js"></script>
     <script src="js/assistant_dashboard.js"></script>
 </body>

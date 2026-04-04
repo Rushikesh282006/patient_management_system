@@ -107,9 +107,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
     $id = mysqli_real_escape_string($conn, $_PUT['id']);
     $status = mysqli_real_escape_string($conn, $_PUT['status']);
     $notes = isset($_PUT['notes']) ? mysqli_real_escape_string($conn, $_PUT['notes']) : '';
+    $cancellation_reason = isset($_PUT['cancellation_reason']) ? mysqli_real_escape_string($conn, $_PUT['cancellation_reason']) : '';
     
     $query = "UPDATE appointments 
-              SET status = '$status', notes = '$notes'
+              SET status = '$status', notes = '$notes', cancellation_reason = '$cancellation_reason'
               WHERE id = '$id'";
     
     if (mysqli_query($conn, $query)) {

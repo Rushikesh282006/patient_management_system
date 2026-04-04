@@ -120,20 +120,46 @@ document.querySelectorAll('.modal').forEach(modal => {
     });
 });
 
-// Form Validation
+// Enhanced Form Validation
+function showError(input, msg) {
+    input.classList.add("input-error");
+    let hint = input.parentElement.querySelector(".field-error-msg");
+    if (!hint) {
+        hint = document.createElement("span");
+        hint.className = "field-error-msg";
+        hint.style.cssText = "display:block;color:#D32F2F;font-size:0.82rem;margin-top:0.3rem;";
+        input.parentElement.appendChild(hint);
+    }
+    hint.textContent = msg;
+}
+
+function clearError(input) {
+    input.classList.remove("input-error");
+    const hint = input.parentElement.querySelector(".field-error-msg");
+    if (hint) hint.textContent = "";
+}
+
+function clearAllErrors(formId) {
+    const form = document.getElementById(formId);
+    if (!form) return;
+    form.querySelectorAll(".input-error").forEach((el) => el.classList.remove("input-error"));
+    form.querySelectorAll(".field-error-msg").forEach((el) => (el.textContent = ""));
+}
+
 function validateForm(formId) {
     const form = document.getElementById(formId);
     if (!form) return false;
     
+    clearAllErrors(formId);
     const inputs = form.querySelectorAll('[required]');
     let isValid = true;
     
     inputs.forEach(input => {
-        if (!input.value.trim()) {
-            input.style.borderColor = '#D32F2F';
+        if (!input.value.trim() || input.value === "" || (input.tagName === 'SELECT' && !input.value)) {
+            const label = input.parentElement.querySelector('.form-label');
+            const fieldName = label ? label.textContent.replace('*', '').trim() : 'This field';
+            showError(input, `${fieldName} is required.`);
             isValid = false;
-        } else {
-            input.style.borderColor = '';
         }
     });
     
@@ -439,6 +465,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('healthTipsList')) {
         loadHealthTips();
     }
+
+    // Real-time error clearing for all forms
+    document.querySelectorAll('form').forEach(form => {
+        form.querySelectorAll(".form-input, .form-select, .form-textarea").forEach((input) => {
+            ["input", "change"].forEach((evt) =>
+                input.addEventListener(evt, () => clearError(input))
+            );
+        });
+    });
 });
 
 // Search Functionality

@@ -83,15 +83,15 @@ function displayAppointments(appointments) {
                     <tbody>
                         ${appointments.map(apt => `
                             <tr>
-                                <td><strong>${apt.patient_name}</strong><br><small>${apt.patient_phone}</small></td>
-                                <td><strong>${apt.doctor_name}</strong><br><small>${apt.specialization}</small></td>
-                                <td>${formatDate(apt.appointment_date)}</td>
-                                <td>${formatTime(apt.appointment_time)}</td>
-                                <td>${apt.reason}</td>
-                                <td><span class="badge badge-${getStatusClass(apt.status)}">${apt.status}</span></td>
-                                <td>
+                                <td data-label="Patient:"><strong>${apt.patient_name}</strong><br><small>${apt.patient_phone}</small></td>
+                                <td data-label="Doctor:"><strong>${apt.doctor_name}</strong><br><small>${apt.specialization}</small></td>
+                                <td data-label="Date:">${formatDate(apt.appointment_date)}</td>
+                                <td data-label="Time:">${formatTime(apt.appointment_time)}</td>
+                                <td data-label="Reason:">${apt.reason}</td>
+                                <td data-label="Status:"><span class="badge badge-${getStatusClass(apt.status)}">${apt.status}</span></td>
+                                <td data-label="Actions:">
                                     ${apt.status === 'scheduled' ? `
-                                        <button onclick="updateAppointmentStatus(${apt.id}, 'cancelled')" class="btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Cancel</button>
+                                        <button onclick="openCancellationModal(${apt.id})" class="btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Cancel</button>
                                     ` : ''}
                                 </td>
                             </tr>
@@ -114,18 +114,30 @@ function filterAppointmentsByStatus() {
     }
 }
 
-async function updateAppointmentStatus(appointmentId, status) {
-    if (!confirm('Are you sure you want to ' + status + ' this appointment?')) {
-        return;
-    }
+function openCancellationModal(appointmentId) {
+    document.getElementById('cancelAppointmentId').value = appointmentId;
+    document.getElementById('cancellationForm').reset();
+    openModal('cancellationModal');
+}
+
+async function submitCancellation(event) {
+    event.preventDefault();
     
+    const appointmentId = document.getElementById('cancelAppointmentId').value;
+    const reason = new FormData(event.target).get('cancellation_reason');
+    
+    await updateAppointmentStatus(appointmentId, 'cancelled', reason);
+    closeModal('cancellationModal');
+}
+
+async function updateAppointmentStatus(appointmentId, status, reason = '') {
     try {
         const response = await fetch('php/appointment.php', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: `id=${appointmentId}&status=${status}`
+            body: `id=${appointmentId}&status=${status}&cancellation_reason=${encodeURIComponent(reason)}`
         });
         
         const result = await response.json();

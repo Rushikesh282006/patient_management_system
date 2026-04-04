@@ -26,12 +26,13 @@
     box-sizing: border-box;
 }
 
-body {
+html, body {
     font-family: 'Outfit', sans-serif;
     color: var(--text-dark);
     background: var(--white);
     line-height: 1.6;
     overflow-x: hidden;
+    width: 100%;
 }
 
 /* Parallax Container */
@@ -265,15 +266,27 @@ body {
 }
 
 .btn-secondary {
-    background: rgba(255, 255, 255, 0.15);
-    color: var(--white);
-    backdrop-filter: blur(10px);
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: var(--white);
+    color: var(--primary);
+    border: 2px solid var(--primary);
+    box-shadow: var(--shadow-sm);
 }
 
 .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.25);
+    background: var(--secondary);
     transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Dashboard Specific Button Overrides */
+.dashboard .btn-secondary {
+    border-color: rgba(10, 77, 104, 0.2);
+    color: var(--text-dark);
+}
+
+.dashboard .btn-secondary:hover {
+    background: var(--secondary);
+    border-color: var(--primary);
 }
 
 .btn-logout {
@@ -600,7 +613,19 @@ body {
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 0 4px var(--accent-glow);
-    background-color: var(--white);
+}
+
+.input-error {
+    border-color: #D32F2F !important;
+    box-shadow: 0 0 0 4px rgba(211, 47, 47, 0.1) !important;
+}
+
+.field-error-msg {
+    display: block;
+    color: #D32F2F !important;
+    font-size: 0.82rem !important;
+    margin-top: 0.3rem !important;
+    font-weight: 500 !important;
 }
 
 /* Custom error class for JS validation with red glowing effect */
@@ -877,6 +902,11 @@ body {
 
 /* Responsive Design */
 @media (max-width: 1024px) {
+    .nav-container, .dashboard-container, .auth-wrapper {
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+    }
+
     .hero-content {
         grid-template-columns: 1fr;
     }
@@ -887,6 +917,26 @@ body {
 }
 
 @media (max-width: 768px) {
+    html, body {
+        position: relative !important;
+        overflow-x: hidden !important;
+    }
+
+    .nav-container, .dashboard-container, .auth-wrapper, .modal-content {
+        padding: 1rem !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+
+    .data-table-wrapper {
+        width: 100% !important;
+        overflow-x: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
     .mobile-menu-btn {
         display: block;
     }
@@ -1049,6 +1099,64 @@ body {
     
     .form-row {
         grid-template-columns: 1fr;
+    }
+
+    /* Table to Card Transformation */
+    .data-table table, 
+    .data-table thead, 
+    .data-table tbody, 
+    .data-table th, 
+    .data-table td, 
+    .data-table tr {
+        display: block !important;
+    }
+
+    .data-table thead tr {
+        position: absolute !important;
+        top: -9999px !important;
+        left: -9999px !important;
+    }
+
+    .data-table tr {
+        margin-bottom: 2rem !important;
+        border: 1px solid var(--secondary) !important;
+        border-radius: 16px !important;
+        padding: 1rem !important;
+        background: var(--white) !important;
+        box-shadow: var(--shadow-sm) !important;
+    }
+
+    .data-table td {
+        border: none !important;
+        position: relative !important;
+        padding-left: 110px !important;
+        text-align: left !important;
+        padding-top: 0.8rem !important;
+        padding-bottom: 0.8rem !important;
+        border-bottom: 1px solid rgba(10, 77, 104, 0.05) !important;
+        min-height: 2.5rem !important;
+        word-wrap: break-word !important;
+        white-space: normal !important;
+    }
+
+    .data-table td:last-child {
+        border-bottom: none !important;
+        text-align: left !important;
+        padding-left: 110px !important;
+        margin-top: 0 !important;
+    }
+
+    .data-table td:before {
+        content: attr(data-label);
+        position: absolute !important;
+        left: 0.5rem !important;
+        width: 100px !important;
+        padding-right: 5px !important;
+        white-space: nowrap !important;
+        font-weight: 600 !important;
+        color: var(--primary) !important;
+        text-align: left !important;
+        font-size: 0.9rem !important;
     }
 }
 

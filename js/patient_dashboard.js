@@ -76,29 +76,39 @@ async function loadAppointments() {
         }
         
         container.innerHTML = `
-            <div class="data-table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Doctor</th>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>Reason</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${appointments.map(apt => `
+            <div class="data-table-wrapper">
+                <div class="data-table">
+                    <table>
+                        <thead>
                             <tr>
-                                <td><strong>${apt.doctor_name}</strong><br><small>${apt.specialization}</small></td>
-                                <td>${formatDate(apt.appointment_date)}</td>
-                                <td>${formatTime(apt.appointment_time)}</td>
-                                <td>${apt.reason}</td>
-                                <td><span class="badge badge-${getStatusClass(apt.status)}">${apt.status}</span></td>
+                                <th>Doctor</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Reason</th>
+                                <th>Status</th>
                             </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            ${appointments.map(apt => `
+                                <tr>
+                                    <td data-label="Doctor:"><strong>${apt.doctor_name}</strong><br><small>${apt.specialization}</small></td>
+                                    <td data-label="Date:">${formatDate(apt.appointment_date)}</td>
+                                    <td data-label="Time:">${formatTime(apt.appointment_time)}</td>
+                                    <td data-label="Reason:">
+                                        ${apt.reason}
+                                        ${apt.status === 'cancelled' && apt.cancellation_reason ? `
+                                            <div style="margin-top: 0.8rem; padding: 0.8rem; background: rgba(244, 67, 54, 0.05); border-left: 3px solid #D32F2F; border-radius: 4px;">
+                                                <small style="color: #D32F2F; display: block; margin-bottom: 2px;"><strong>Cancellation Reason:</strong></small>
+                                                <span style="font-size: 0.9rem; color: #1A1A2E;">${apt.cancellation_reason}</span>
+                                            </div>
+                                        ` : ''}
+                                    </td>
+                                    <td data-label="Status:"><span class="badge badge-${getStatusClass(apt.status)}">${apt.status}</span></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         `;
     } catch (error) {

@@ -13,6 +13,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'patient') {
     <title>Patient Dashboard - MediCare</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/tabs.css">
+    <link rel="stylesheet" href="css/plugins/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -144,7 +145,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'patient') {
                 
                 <div class="form-group">
                     <label class="form-label">Preferred Time *</label>
-                    <input type="time" name="appointment_time" class="form-input" required>
+                    <input type="text" name="appointment_time" class="form-input time-picker" placeholder="Select time..." required>
                 </div>
                 
                 <div class="form-group">
@@ -163,10 +164,24 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'patient') {
         </div>
     </div>
 
+    <script src="js/plugins/flatpickr.min.js"></script>
     <script>
         const sessionUserId = <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>;
+        document.addEventListener('DOMContentLoaded', () => {
+            flatpickr("input[type=date]", {
+                dateFormat: "Y-m-d",
+                minDate: "today"
+            });
+            
+            flatpickr(".time-picker", {
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: "h:i K",
+                time_24hr: false
+            });
+        });
     </script>
     <script src="js/main.js"></script>
     <script src="js/patient_dashboard.js"></script>
-</body>
+  </body>
 </html>
