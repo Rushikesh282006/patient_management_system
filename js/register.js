@@ -141,6 +141,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (role.value === "doctor" && specInput && !specInput.value.trim())
       flag(specInput, "Specialization is required for doctors.");
 
+    // Access Code (required when role is doctor or assistant)
+    const accessCodeInput = form.querySelector("#accessCodeGroup input");
+    if ((role.value === "doctor" || role.value === "assistant") && accessCodeInput && !accessCodeInput.value.trim()) {
+      flag(accessCodeInput, "Staff Access Code is required for the " + role.value + " role.");
+    }
+
     // ── Block submit on any error ─────────────────────────────
     if (errors.length > 0) {
       e.preventDefault();
@@ -151,16 +157,28 @@ document.addEventListener("DOMContentLoaded", () => {
   // ── URL param notifications (from server-side redirects) ──────
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.has("error")) {
-    showNotification(decodeURIComponent(urlParams.get("error")), "error");
+    const errorMsg = decodeURIComponent(urlParams.get("error"));
+    const errorDiv = document.getElementById("inline-error-message");
+    if (errorDiv) {
+      errorDiv.textContent = errorMsg;
+      errorDiv.style.display = "block";
+    }
   } else if (urlParams.has("success")) {
     showNotification("Registration successful!", "success");
   }
 
-  // ── Toggle specialization field for doctor role ───────────────
+  // Clean up the URL so the error message doesn't persist on refresh
+  if (window.history && window.history.replaceState && (urlParams.has('error') || urlParams.has('success'))) {
+      window.history.replaceState(null, null, window.location.pathname);
+  }
+
+  // ── Toggle specialization and access code fields ───────────────
   const roleSelect = document.querySelector('select[name="role"]');
   const specGroup = document.getElementById("specializationGroup");
+  const accessCodeGroup = document.getElementById("accessCodeGroup");
 
   roleSelect.addEventListener("change", function () {
+    // Handle Specialization (Doctor only)
     if (this.value === "doctor") {
       specGroup.style.display = "block";
       specGroup.querySelector("input").required = true;
@@ -168,6 +186,16 @@ document.addEventListener("DOMContentLoaded", () => {
       specGroup.style.display = "none";
       specGroup.querySelector("input").required = false;
       clearError(specGroup.querySelector("input"));
+    }
+
+    // Handle Access Code (Doctor and Assistant)
+    if (this.value === "doctor" || this.value === "assistant") {
+      accessCodeGroup.style.display = "block";
+      accessCodeGroup.querySelector("input").required = true;
+    } else {
+      accessCodeGroup.style.display = "none";
+      accessCodeGroup.querySelector("input").required = false;
+      clearError(accessCodeGroup.querySelector("input"));
     }
   });
 });

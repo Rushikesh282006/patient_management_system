@@ -57,7 +57,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'patient') {
 
             <!-- Tabs -->
             <div style="margin-bottom: 2rem;">
-                <div style="display: flex; gap: 1rem; border-bottom: 2px solid var(--secondary);">
+                <div class="tabs-wrapper" style="display: flex; gap: 1rem; border-bottom: 2px solid var(--secondary);">
                     <button class="tab-btn active" onclick="switchTab('appointments')" id="appointmentsTab">
                         <i class="fas fa-calendar-check"></i> My Appointments
                     </button>
@@ -163,6 +163,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'patient') {
         </div>
     </div>
 
+    <script>
+        const sessionUserId = <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>;
+    </script>
     <script src="js/main.js"></script>
     <script src="js/patient_dashboard.js"></script>
 </body>

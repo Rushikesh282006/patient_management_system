@@ -35,9 +35,8 @@ function switchTab(tabName) {
 // Load patient dashboard data
 async function loadPatientDashboard() {
     try {
-        // This would normally come from session
-        // For demo, we'll use patient1's ID (4)
-        currentPatientId = 4;
+        // Fetch actual session ID from PHP injected variable
+        currentPatientId = typeof sessionUserId !== 'undefined' && sessionUserId !== null ? sessionUserId : 4;
         document.getElementById('currentPatientId').value = currentPatientId;
         
         // Load doctors list

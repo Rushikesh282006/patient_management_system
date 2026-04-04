@@ -70,7 +70,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'assistant') {
             <div class="dashboard-card">
                 <div class="card-header">
                     <h2 class="card-title">All Appointments</h2>
-                    <div style="display: flex; gap: 1rem;">
+                    <div class="header-actions" style="display: flex; gap: 1rem;">
                         <input type="text" id="searchAppointments" class="form-input" placeholder="Search appointments..." 
                                style="max-width: 300px; padding: 0.7rem;" onkeyup="searchTable('searchAppointments', 'appointmentsTable')">
                         <select id="filterStatus" class="form-select" style="max-width: 200px;" onchange="filterAppointmentsByStatus()">
@@ -123,6 +123,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'assistant') {
                 <div class="form-group">
                     <label class="form-label">Reason for Visit *</label>
                     <textarea name="reason" class="form-textarea" placeholder="Enter reason for appointment..." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Symptoms *</label>
+                    <input type="text" name="symptoms" class="form-input" placeholder="Enter symptoms..." required>
                 </div>
                 
                 <div style="display: flex; gap: 1rem; justify-content: flex-end;">

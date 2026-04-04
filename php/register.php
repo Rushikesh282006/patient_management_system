@@ -11,6 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST["password"];
     $confirm_password = $_POST["confirm_password"];
     $role = trim($_POST["role"]);
+    $access_code = isset($_POST["access_code"]) ? trim($_POST["access_code"]) : "";
     $specialization = isset($_POST["specialization"]) ? trim($_POST["specialization"]) : "";
     $gender = isset($_POST["gender"]) ? trim($_POST["gender"]) : "";
     $dob = isset($_POST["dob"]) ? trim($_POST["dob"]) : "";
@@ -27,6 +28,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($password !== $confirm_password) {
         header("Location: ../register.html?error=" . urlencode("Passwords do not match."));
         exit();
+    }
+    
+    // Verify Access Codes for Staff Roles
+    if ($role === "doctor") {
+        if ($access_code !== "DOC_VERIFY_2026") {
+            header("Location: ../register.html?error=" . urlencode("Invalid Doctor Access Code. Registration denied."));
+            exit();
+        }
+    } elseif ($role === "assistant") {
+        if ($access_code !== "AST_VERIFY_2026") {
+            header("Location: ../register.html?error=" . urlencode("Invalid Assistant Access Code. Registration denied."));
+            exit();
+        }
     }
     
     // Check if username or email already exists
@@ -54,8 +68,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param("ssssssssss", $full_name, $username, $email, $phone, $hashed_password, $role, $specialization, $gender, $dob, $address);
         
         if ($stmt->execute()) {
-            // Success! Redirect to login
-            echo "<script>alert('Registration successful! Please login.'); window.location.href='../login.html';</script>";
+            // Success! Redirect to login with success message
+            header("Location: ../login.html?success=" . urlencode("Registration successful! Please login."));
+            exit();
         } else {
             header("Location: ../register.html?error=" . urlencode("Something went wrong. Please try again."));
         }

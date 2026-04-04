@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - MediCare</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/plugins/choices.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -40,7 +41,14 @@
                     
                     <div class="form-group">
                         <label class="form-label">Password</label>
-                        <input type="password" name="password" class="form-input" placeholder="Enter your password" required>
+                        <div style="position: relative;">
+                            <input type="password" name="password" id="loginPassword" class="form-input" placeholder="Enter your password" required style="padding-right: 2.5rem; width: 100%; box-sizing: border-box;">
+                            <i class="fas fa-eye-slash" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #666;" onclick="
+                                const pw = document.getElementById('loginPassword');
+                                if(pw.type === 'password') { pw.type = 'text'; this.classList.remove('fa-eye-slash'); this.classList.add('fa-eye'); }
+                                else { pw.type = 'password'; this.classList.remove('fa-eye'); this.classList.add('fa-eye-slash'); }
+                            "></i>
+                        </div>
                     </div>
                     
                     <div class="form-group">
@@ -52,6 +60,8 @@
                             <option value="assistant">Assistant</option>
                         </select>
                     </div>
+                    
+                    <div id="inline-error-message" style="display: none; color: #D32F2F; margin-top: 0.5rem; margin-bottom: 0.5rem; font-size: 0.95rem; text-align: center; border: 1px solid rgba(211, 47, 47, 0.3); background-color: rgba(211, 47, 47, 0.05); padding: 0.6rem; border-radius: 8px;"></div>
                     
                     <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Login</button>
                 </form>
@@ -72,6 +82,37 @@
         </div>
     </section>
 
+    <script src="js/plugins/choices.min.js"></script>
     <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const roleSelect = document.querySelector('select[name="role"]');
+            if (roleSelect) {
+                new Choices(roleSelect, {
+                    searchEnabled: false,
+                    itemSelectText: '',
+                    shouldSort: false,
+                    position: 'bottom'
+                });
+            }
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('error')) {
+                const errorMsg = decodeURIComponent(urlParams.get('error'));
+                const errorDiv = document.getElementById('inline-error-message');
+                if (errorDiv) {
+                    errorDiv.textContent = errorMsg;
+                    errorDiv.style.display = 'block';
+                }
+            } else if (urlParams.has('success')) {
+                showNotification(decodeURIComponent(urlParams.get('success')), 'success');
+            }
+            
+            // Clean up the URL so the error message doesn't persist on refresh
+            if (window.history && window.history.replaceState && (urlParams.has('error') || urlParams.has('success'))) {
+                window.history.replaceState(null, null, window.location.pathname);
+            }
+        });
+    </script>
 </body>
 </html>

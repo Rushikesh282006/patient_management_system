@@ -4,7 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Register - MediCare</title>
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/style.css?v=2.0" />
+    <link rel="stylesheet" href="css/plugins/flatpickr.min.css" />
+    <link rel="stylesheet" href="css/plugins/choices.min.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -164,12 +166,21 @@
                   >Password
                   <span class="required">*</span></label
                 >
-                <input
-                  type="password"
-                  name="password"
-                  class="form-input"
-                  placeholder="Create a password"
-                />
+                <div style="position: relative;">
+                  <input
+                    type="password"
+                    name="password"
+                    id="regPassword1"
+                    class="form-input"
+                    placeholder="Create a password"
+                    style="padding-right: 2.5rem; width: 100%; box-sizing: border-box;"
+                  />
+                  <i class="fas fa-eye-slash" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #666;" onclick="
+                    const pw1 = document.getElementById('regPassword1');
+                    if(pw1.type === 'password') { pw1.type = 'text'; this.classList.remove('fa-eye-slash'); this.classList.add('fa-eye'); }
+                    else { pw1.type = 'password'; this.classList.remove('fa-eye'); this.classList.add('fa-eye-slash'); }
+                  "></i>
+                </div>
               </div>
 
               <div class="form-group">
@@ -177,12 +188,21 @@
                   >Confirm Password
                   <span class="required">*</span></label
                 >
-                <input
-                  type="password"
-                  name="confirm_password"
-                  class="form-input"
-                  placeholder="Confirm your password"
-                />
+                <div style="position: relative;">
+                  <input
+                    type="password"
+                    name="confirm_password"
+                    id="regPassword2"
+                    class="form-input"
+                    placeholder="Confirm your password"
+                    style="padding-right: 2.5rem; width: 100%; box-sizing: border-box;"
+                  />
+                  <i class="fas fa-eye-slash" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #666;" onclick="
+                    const pw2 = document.getElementById('regPassword2');
+                    if(pw2.type === 'password') { pw2.type = 'text'; this.classList.remove('fa-eye-slash'); this.classList.add('fa-eye'); }
+                    else { pw2.type = 'password'; this.classList.remove('fa-eye'); this.classList.add('fa-eye-slash'); }
+                  "></i>
+                </div>
               </div>
             </div>
 
@@ -214,6 +234,23 @@
               />
             </div>
 
+            <!-- Only show for doctors and assistants -->
+            <div
+              class="form-group"
+              id="accessCodeGroup"
+              style="display: none"
+            >
+              <label class="form-label">Role Access Code <span class="required">*</span></label>
+              <input
+                type="text"
+                name="access_code"
+                class="form-input"
+                placeholder="Enter Staff Access Code"
+              />
+            </div>
+
+            <div id="inline-error-message" style="display: none; color: #D32F2F; margin-top: 0.5rem; margin-bottom: 0.5rem; font-size: 0.95rem; text-align: center; border: 1px solid rgba(211, 47, 47, 0.3); background-color: rgba(211, 47, 47, 0.05); padding: 0.6rem; border-radius: 8px;"></div>
+            
             <button
               type="submit"
               class="btn-primary"
@@ -245,6 +282,26 @@
       </div>
     </section>
 
+    <script src="js/plugins/flatpickr.min.js"></script>
+    <script src="js/plugins/choices.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+          flatpickr("input[type=date]", {
+              dateFormat: "Y-m-d",
+              maxDate: "today",
+              disableMobile: true
+          });
+          const selects = document.querySelectorAll('.form-select');
+          selects.forEach(select => {
+              new Choices(select, {
+                  searchEnabled: false,
+                  itemSelectText: '',
+                  shouldSort: false,
+                  position: 'bottom'
+              });
+          });
+      });
+    </script>
     <script src="js/main.js"></script>
     <script src="js/register.js"></script>
   </body>

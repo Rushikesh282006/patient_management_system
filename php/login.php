@@ -107,9 +107,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     // Close connection
     $conn->close();
     
-    // If we reach here, there was an error. Redirect back to login with error
-    // In a real app we'd pass this error back, but for now just redirect to login page
-    // Using crude alert script for demo since login form is pure html
-    echo "<script>alert('{$login_err}'); window.location.href='../login.html';</script>";
+    // If we reach here, there was an error. Redirect back to login with the error in the URL string
+    header("Location: ../login.html?error=" . urlencode($login_err));
+    exit();
 }
 ?>

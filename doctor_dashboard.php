@@ -82,8 +82,10 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'doctor') {
             <div class="dashboard-card mt-2">
                 <div class="card-header">
                     <h2 class="card-title">Appointments</h2>
-                    <input type="text" id="searchAppointments" class="form-input" placeholder="Search appointments..." 
-                           style="max-width: 300px; padding: 0.7rem;" onkeyup="searchTable('searchAppointments', 'appointmentsTable')">
+                    <div class="header-actions" style="display: flex; gap: 1rem;">
+                        <input type="text" id="searchAppointments" class="form-input" placeholder="Search appointments..." 
+                               style="max-width: 300px; padding: 0.7rem;" onkeyup="searchTable('searchAppointments', 'appointmentsTable')">
+                    </div>
                 </div>
                 <div id="appointmentsList">
                     <p>Loading appointments...</p>

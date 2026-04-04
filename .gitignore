@@ -28,3 +28,6 @@ Desktop.ini
 
 # Temporary session data (if your PHP stores sessions in files)
 sessions/
+
+#user id and passwords
+users.txt
