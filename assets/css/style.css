@@ -73,10 +73,40 @@ html, body {
 .nav-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 1.2rem 2rem;
+    padding: 0.8rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 2rem;
+    flex-wrap: nowrap !important; /* Critical: Prevent stacking on Tab/PC */
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    gap: 1.5rem;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-left: auto; /* Pin to absolute right corner */
+    flex-shrink: 0; /* Critical: Never squash action buttons */
+}
+
+.welcome-msg {
+    color: var(--text-dark);
+    font-weight: 500;
+    margin-right: auto; 
+    padding-left: 1rem;
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    max-width: 350px; /* Base desktop width */
+    flex-shrink: 1; /* Allow truncation */
 }
 
 .logo {
@@ -88,6 +118,7 @@ html, body {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    flex-shrink: 0; /* Critical: Never squash the logo */
 }
 
 .logo-icon {
@@ -100,6 +131,7 @@ html, body {
     justify-content: center;
     color: var(--white);
     font-size: 1.5rem;
+    flex-shrink: 0;
 }
 
 .nav-links {
@@ -488,7 +520,36 @@ html, body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2.5rem; /* Increased margin for better separation */
+    gap: 3rem; /* Significantly increased gap for PC/Tab clarity */
+    flex-wrap: wrap; 
+}
+
+/* Base header-actions for Desktop/Laptop */
+.header-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: flex-end;
+    flex-grow: 1; /* Pushes to the right */
+}
+
+.header-actions .form-input,
+.header-actions .form-select {
+    height: 3.2rem !important; /* Standardize interactive element height */
+    padding: 0.6rem 1.2rem !important;
+    font-size: 0.95rem !important;
+    border-radius: 12px !important;
+    background-color: #f8fafc; /* Subtle tint for contrast in headers */
+    border: 1px solid rgba(10, 77, 104, 0.1) !important;
+}
+
+.header-actions .form-input {
+    min-width: 250px;
+}
+
+.header-actions .form-select {
+    min-width: 160px;
 }
 
 .card-title {
@@ -663,9 +724,43 @@ html, body {
     width: 100%;
     background: var(--white);
     border-radius: 16px;
-    overflow: hidden;
     box-shadow: var(--shadow-sm);
     min-width: 600px;
+    overflow: visible !important; /* Critical for dropdowns */
+}
+
+.data-table table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+}
+
+.data-table th, .data-table td {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    vertical-align: middle !important;
+}
+
+/* Curved Table Edges */
+.data-table thead tr:first-child th:first-child {
+    border-top-left-radius: 16px;
+}
+
+.data-table thead tr:first-child th:last-child {
+    border-top-right-radius: 16px;
+}
+
+.data-table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 16px;
+}
+
+.data-table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 16px;
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none; /* Last row doesn't need a bottom line */
 }
 
 .data-table table {
@@ -684,6 +779,26 @@ html, body {
 .data-table td {
     padding: 1.2rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    vertical-align: middle;
+}
+
+.data-table td:last-child {
+    min-width: 200px;
+}
+
+.data-table td:last-child > *:not(.reason-dropdown-content) {
+    display: flex !important;
+    gap: 0.8rem;
+    align-items: center !important;
+    justify-content: flex-start;
+}
+
+/* Ensure empty actions also appear centered */
+.data-table td:last-child span:not(.reason-dropdown-content) {
+    display: flex;
+    align-items: center;
+    color: var(--text-light);
+    font-size: 0.85rem;
 }
 
 .data-table tr:hover {
@@ -713,6 +828,104 @@ html, body {
     color: #D32F2F;
 }
 
+/* Cancellation Reason Cell & Box */
+.cancellation-reason-cell {
+    padding-top: 0 !important;
+    padding-bottom: 0.8rem !important;
+}
+
+.cancellation-reason-box {
+    display: flex;
+    flex-direction: column;
+    padding: 0.8rem 1rem;
+    background: rgba(244, 67, 54, 0.06);
+    border-left: 3px solid #D32F2F;
+    border-radius: 6px;
+    gap: 0.3rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    width: 100%;
+}
+
+.cancellation-reason-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #D32F2F;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.cancellation-reason-text {
+    font-size: 0.92rem;
+    color: var(--text-dark);
+    line-height: 1.6;
+    white-space: normal;
+    word-break: break-word;
+}
+
+/* Reason Dropdown */
+.reason-dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+.reason-dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 10px); /* Show ABOVE the button */
+    margin-bottom: 0.5rem;
+    background: #fff;
+    min-width: 280px;
+    box-shadow: var(--shadow-lg);
+    border-radius: 16px;
+    padding: 1.2rem;
+    z-index: 1000; /* Higher z-index */
+    border: 1px solid rgba(244, 67, 54, 0.2);
+    text-align: left;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.08));
+}
+
+.reason-dropdown-content::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    right: 20px;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #fff;
+}
+
+.reason-dropdown-content.show {
+    display: block;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.reason-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #D32F2F;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.05em;
+}
+
+.reason-text {
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    line-height: 1.5;
+}
+
+/* On desktop: make cancellation reason cell span full row width */
+@media (min-width: 769px) {
+    .cancellation-reason-cell {
+        display: table-cell;
+    }
+    .data-table tr.has-cancellation td:last-of-type {
+        border-bottom: none;
+    }
+}
+
 /* Modal */
 .modal {
     display: none;
@@ -737,7 +950,10 @@ html, body {
     max-width: 600px;
     width: 90%;
     max-height: 90vh;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-bottom: 0;
     box-shadow: var(--shadow-lg);
     animation: slideUp 0.4s ease-out;
 }
@@ -747,6 +963,30 @@ html, body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
+    flex-shrink: 0;
+}
+
+.modal-body {
+    overflow-y: auto;
+    flex-grow: 1;
+    padding-right: 1rem;
+    padding-bottom: 3rem;
+    margin-right: -1rem;
+}
+
+/* Custom Scrollbar for all modal bodies */
+.modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+.modal-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+.modal-body::-webkit-scrollbar-thumb {
+    background: rgba(10, 77, 104, 0.2);
+    border-radius: 10px;
+}
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(10, 77, 104, 0.4);
 }
 
 .modal-title {
@@ -762,6 +1002,24 @@ html, body {
     color: var(--text-light);
     cursor: pointer;
     transition: var(--transition);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+}
+
+@media (max-width: 480px) {
+    .modal-actions {
+        flex-direction: column-reverse !important;
+        gap: 0.8rem !important;
+    }
+    .modal-actions button, .modal-actions .btn-secondary, .modal-actions .btn-primary {
+        width: 100% !important;
+        margin: 0 !important;
+    }
 }
 
 .close-modal:hover {
@@ -907,12 +1165,38 @@ html, body {
         overflow-x: hidden !important;
     }
 
+    .hero {
+        height: auto;
+        min-height: 100vh;
+        padding-top: 150px;
+        padding-bottom: 3rem;
+        align-items: flex-start;
+    }
+
     .hero-content {
         grid-template-columns: 1fr;
+        gap: 2.5rem;
     }
-    
+
+    .hero-text {
+        text-align: center;
+    }
+
     .hero-text h1 {
-        font-size: 3.5rem;
+        font-size: 3rem;
+    }
+
+    .hero-buttons {
+        justify-content: center;
+    }
+
+    .hero-card {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .stat-grid {
+        grid-template-columns: 1fr 1fr;
     }
 }
 
@@ -922,12 +1206,20 @@ html, body {
         overflow-x: hidden !important;
     }
 
-    .nav-container, .dashboard-container, .auth-wrapper, .modal-content {
+    .nav-container, .dashboard-container, .auth-wrapper {
         padding: 1rem !important;
         width: 100% !important;
         max-width: 100vw !important;
         box-sizing: border-box !important;
         overflow-x: hidden !important;
+    }
+
+    .modal-content {
+        padding: 1.5rem !important;
+        width: 95% !important;
+        max-width: 500px !important;
+        border-radius: 20px !important;
+        margin: 1rem !important;
     }
 
     .data-table-wrapper {
@@ -959,18 +1251,94 @@ html, body {
     }
 
     .nav-container {
-        padding: 1rem !important;
-        flex-wrap: wrap !important;
+        padding: 0.8rem 1rem !important;
+        flex-wrap: nowrap !important; 
+        gap: 1rem !important; 
     }
 
-    .nav-container > div:last-child {
-        width: 100% !important;
-        justify-content: space-between !important;
+    .welcome-msg {
+        max-width: 150px !important; /* Aggressive truncation for Tablets */
+    }
+
+    .nav-menu {
+        display: flex !important;
+        flex-direction: row !important; 
+        align-items: center !important;
         gap: 1rem !important;
+        flex-wrap: nowrap !important;
+        flex: 1 !important;
+    }
+
+    .nav-actions {
+        display: flex !important;
+        flex-direction: row !important; 
+        align-items: center !important;
+        gap: 0.5rem !important;
+        flex-wrap: nowrap !important;
+        margin-left: 0.5rem !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* Small Screen Specific Overflow Fix */
+    @media (max-width: 600px) {
+        .welcome-msg {
+            display: none !important; /* Hide 'Welcome' message on very small screens to keep buttons visible */
+        }
+        
+        .nav-container {
+            flex-wrap: nowrap !important;
+            justify-content: space-between !important;
+        }
+
+        .nav-menu {
+            justify-content: flex-end !important;
+        }
+    }
+
+    /* Mobile Responsiveness for Dashboard Headers */
+    @media (max-width: 768px) {
+        .card-header {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 1.2rem !important;
+        }
+
+        .header-actions {
+            width: 100% !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            margin-top: 0.5rem !important;
+        }
+
+        .header-actions .form-input,
+        .header-actions .form-select {
+            width: 100% !important;
+            max-width: none !important;
+            min-width: 0 !important;
+        }
     }
 
     .navbar .btn-primary {
         padding: 0.6rem 1rem !important;
+    }
+
+    /* Fix action button stacking */
+    .data-table td[data-label="Actions:"] {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.7rem !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+    }
+
+    .data-table td[data-label="Actions:"] button,
+    .data-table td[data-label="Actions:"] .btn-secondary,
+    .data-table td[data-label="Actions:"] .btn-primary {
+        width: 100% !important;
+        margin: 0 !important;
+        justify-content: center !important;
     }
 
     .nav-links {
@@ -992,12 +1360,109 @@ html, body {
         clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
     }
 
+    .hero {
+        height: auto;
+        min-height: auto;
+        padding-top: 140px;
+        padding-bottom: 2rem;
+        align-items: flex-start;
+    }
+
+    .hero-content {
+        padding: 0 1rem;
+        gap: 1.5rem;
+    }
+
+    .hero-text {
+        text-align: center;
+    }
+
     .hero-text h1 {
-        font-size: 2.5rem;
+        font-size: 2rem;
+        line-height: 1.2;
     }
     
     .hero-text p {
-        font-size: 1.1rem;
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .hero-buttons .btn-primary,
+    .hero-buttons .btn-secondary {
+        width: 100%;
+        text-align: center;
+        padding: 1rem 2rem;
+    }
+
+    .hero-card {
+        padding: 1.5rem;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+    }
+
+    .stat-item {
+        padding: 1rem;
+    }
+
+    /* Section titles */
+    .section-header {
+        padding: 0 0.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+    }
+
+    .section-subtitle {
+        font-size: 1rem;
+    }
+
+    /* Features section */
+    .features {
+        padding: 3rem 1rem;
+    }
+
+    .feature-card {
+        padding: 1.5rem;
+    }
+
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+    }
+
+    .feature-card h3 {
+        font-size: 1.4rem;
+    }
+
+    /* Contact form */
+    #contact .features-grid,
+    #contact > div {
+        padding: 1.5rem !important;
+        margin: 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Footer */
+    footer > div > div:nth-child(3) {
+        flex-direction: column !important;
+        gap: 1rem !important;
     }
     
     .section-title {
@@ -1158,6 +1623,76 @@ html, body {
         text-align: left !important;
         font-size: 0.9rem !important;
     }
+
+    .reason-dropdown-container {
+        display: block !important;
+        width: 100% !important;
+        margin-top: 0.5rem !important;
+    }
+
+    .reason-dropdown-content {
+        position: relative !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin-top: 0.8rem !important;
+        box-shadow: none !important;
+        background: rgba(244, 67, 54, 0.02) !important;
+        border: 1px dashed rgba(244, 67, 54, 0.3) !important;
+        animation: slideDown 0.3s ease-out !important;
+    }
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cancellation reason gets full width in card mode */
+    .data-table {
+        min-width: 0 !important;
+        overflow: visible !important;
+    }
+
+    .data-table table {
+        width: 100% !important;
+        table-layout: fixed !important;
+    }
+
+    .data-table .cancellation-reason-cell {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.8rem !important;
+        border-top: 1px dashed rgba(211, 47, 47, 0.2) !important;
+        border-bottom: none !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+
+    .data-table .cancellation-reason-cell:before {
+        display: none !important;
+    }
+
+    .cancellation-reason-box {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+    }
+
+    .cancellation-reason-text {
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
+        display: block !important;
+        width: 100% !important;
+    }
 }
 
 /* Utility Classes */
@@ -1316,3 +1851,51 @@ html, body {
 .flatpickr-day:hover {
     background: var(--secondary) !important;
 }
+
+/* Remove number input arrows (spinners) */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+/* Flatpickr Modern Theming */
+.flatpickr-calendar {
+    background: var(--white);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid rgba(10, 77, 104, 0.1);
+    border-radius: 16px;
+    padding: 0.5rem;
+    z-index: 10000 !important; /* Keep above all modals */
+    max-width: 95vw !important; /* Prevent horizontal scroll on mobile */
+    box-sizing: border-box;
+}
+
+.flatpickr-time {
+    border-top: 1px solid rgba(10, 77, 104, 0.1);
+    height: 60px !important;
+}
+
+.flatpickr-time .numInputWrapper:hover {
+    background: var(--secondary);
+}
+
+.flatpickr-time input:hover, .flatpickr-time .flatpickr-am-pm:hover {
+    background: var(--secondary);
+}
+
+.flatpickr-time input.flatpickr-hour, 
+.flatpickr-time input.flatpickr-minute {
+    font-weight: 700 !important;
+    color: var(--primary) !important;
+}
+
+.flatpickr-calendar.hasTime.noCalendar {
+    width: 250px !important;
+}

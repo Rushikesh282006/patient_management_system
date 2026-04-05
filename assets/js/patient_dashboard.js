@@ -51,6 +51,19 @@ async function loadPatientDashboard() {
             doctorSelect.appendChild(option);
         });
         
+        // Initialize Choices.js for select fields
+        const selects = document.querySelectorAll('.form-select');
+        selects.forEach(select => {
+            if (!select.classList.contains('choices__input')) {
+                new Choices(select, {
+                    searchEnabled: false,
+                    itemSelectText: '',
+                    shouldSort: false,
+                    position: 'bottom'
+                });
+            }
+        });
+        
         // Set minimum date to today
         const today = new Date().toISOString().split('T')[0];
         document.querySelector('input[name="appointment_date"]').min = today;
@@ -63,9 +76,10 @@ async function loadPatientDashboard() {
 }
 
 // Override loadAppointments to display in patient dashboard
-async function loadAppointments() {
+async function loadAppointments(search = '') {
     try {
-        const response = await fetch('php/appointment.php?action=list');
+        const url = `php/appointment.php?action=list${search ? `&search=${encodeURIComponent(search)}` : ''}`;
+        const response = await fetch(url);
         const appointments = await response.json();
         
         const container = document.getElementById('appointmentsList');
@@ -78,7 +92,7 @@ async function loadAppointments() {
         container.innerHTML = `
             <div class="data-table-wrapper">
                 <div class="data-table">
-                    <table>
+                    <table id="appointmentsTable">
                         <thead>
                             <tr>
                                 <th>Doctor</th>
@@ -86,24 +100,32 @@ async function loadAppointments() {
                                 <th>Time</th>
                                 <th>Reason</th>
                                 <th>Status</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             ${appointments.map(apt => `
-                                <tr>
-                                    <td data-label="Doctor:"><strong>${apt.doctor_name}</strong><br><small>${apt.specialization}</small></td>
+                                <tr class="${apt.status === 'cancelled' && apt.cancellation_reason ? 'has-cancellation' : ''}">
+                                    <td data-label="Doctor:"><strong>${apt.doctor_name || '<em style="color:var(--text-light)">Not assigned yet</em>'}</strong><br><small>${apt.specialization || ''}</small></td>
                                     <td data-label="Date:">${formatDate(apt.appointment_date)}</td>
                                     <td data-label="Time:">${formatTime(apt.appointment_time)}</td>
-                                    <td data-label="Reason:">
-                                        ${apt.reason}
-                                        ${apt.status === 'cancelled' && apt.cancellation_reason ? `
-                                            <div style="margin-top: 0.8rem; padding: 0.8rem; background: rgba(244, 67, 54, 0.05); border-left: 3px solid #D32F2F; border-radius: 4px;">
-                                                <small style="color: #D32F2F; display: block; margin-bottom: 2px;"><strong>Cancellation Reason:</strong></small>
-                                                <span style="font-size: 0.9rem; color: #1A1A2E;">${apt.cancellation_reason}</span>
-                                            </div>
-                                        ` : ''}
-                                    </td>
+                                    <td data-label="Reason:">${apt.reason}</td>
                                     <td data-label="Status:"><span class="badge badge-${getStatusClass(apt.status)}">${apt.status}</span></td>
+                                    <td data-label="Actions:">
+                                        ${apt.status === 'scheduled' ? `
+                                            <button onclick="openCancellationModal(${apt.id})" class="btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">✕ Cancel</button>
+                                        ` : (apt.status === 'cancelled' && apt.cancellation_reason ? `
+                                            <div class="reason-dropdown-container">
+                                                <button onclick="toggleReason(${apt.id})" class="btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; background: rgba(244, 67, 54, 0.05); color: #D32F2F; border-color: rgba(244, 67, 54, 0.3);">
+                                                    <i class="fas fa-info-circle"></i> Reason
+                                                </button>
+                                                <div id="reason-${apt.id}" class="reason-dropdown-content">
+                                                    <div class="reason-label">📋 CANCELLATION REASON</div>
+                                                    <div class="reason-text">${apt.cancellation_reason}</div>
+                                                </div>
+                                            </div>
+                                        ` : '<span style="color: var(--text-light); font-size: 0.85rem;">No actions</span>')}
+                                    </td>
                                 </tr>
                             `).join('')}
                         </tbody>
@@ -115,10 +137,27 @@ async function loadAppointments() {
         console.error('Error loading appointments:', error);
     }
 }
+window.loadAppointments = loadAppointments;
 
-async function loadPrescriptions() {
+function toggleReason(id) {
+    const content = document.getElementById(`reason-${id}`);
+    const isVisible = content.classList.contains('show');
+    
+    // Close any other open reasons
+    document.querySelectorAll('.reason-dropdown-content').forEach(el => {
+        el.classList.remove('show');
+    });
+    
+    // Toggle the current one
+    if (!isVisible) {
+        content.classList.add('show');
+    }
+}
+
+async function loadPrescriptions(search = '') {
     try {
-        const response = await fetch(`php/prescription.php?patient_id=${currentPatientId}`);
+        const url = `php/prescription.php?patient_id=${currentPatientId}${search ? `&search=${encodeURIComponent(search)}` : ''}`;
+        const response = await fetch(url);
         const prescriptions = await response.json();
         
         const container = document.getElementById('prescriptionsList');
@@ -149,6 +188,44 @@ async function loadPrescriptions() {
         `).join('');
     } catch (error) {
         console.error('Error loading prescriptions:', error);
+    }
+}
+window.loadPrescriptions = loadPrescriptions;
+
+// Cancellation logic
+function openCancellationModal(appointmentId) {
+    document.getElementById('cancelAppointmentId').value = appointmentId;
+    document.getElementById('cancellationForm').reset();
+    openModal('cancellationModal');
+}
+
+async function submitCancellation(event) {
+    event.preventDefault();
+    
+    const appointmentId = document.getElementById('cancelAppointmentId').value;
+    const reason = new FormData(event.target).get('cancellation_reason');
+    
+    try {
+        const response = await fetch('php/appointment.php', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `id=${appointmentId}&status=cancelled&cancellation_reason=${encodeURIComponent(reason)}`
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('Appointment cancelled successfully', 'success');
+            closeModal('cancellationModal');
+            loadAppointments();
+        } else {
+            showNotification(result.message || 'Error cancelling appointment', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Server error occurred', 'error');
     }
 }
 

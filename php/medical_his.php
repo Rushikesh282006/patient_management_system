@@ -9,8 +9,11 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Get Medical History
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['patient_id'])) {
+$action = $_GET['action'] ?? $_POST['action'] ?? null;
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+// Get Medical History (Default action when no 'action' parameter is specified)
+if ($method === 'GET' && isset($_GET['patient_id']) && !$action) {
     $patient_id = mysqli_real_escape_string($conn, $_GET['patient_id']);
     
     // Check authorization
@@ -38,13 +41,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['patient_id'])) {
 }
 
 // Add Medical History Record
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['action']) || $_POST['action'] !== 'add_vitals')) {
+if ($method === 'POST' && $action === 'add_history') {
     $patient_id = mysqli_real_escape_string($conn, $_POST['patient_id']);
     $condition_name = mysqli_real_escape_string($conn, $_POST['condition_name']);
     $diagnosis_date = mysqli_real_escape_string($conn, $_POST['diagnosis_date']);
     $description = mysqli_real_escape_string($conn, $_POST['description']);
     $treatment = mysqli_real_escape_string($conn, $_POST['treatment']);
     $status = mysqli_real_escape_string($conn, $_POST['status']);
+    
+    if (empty($condition_name) || empty($diagnosis_date) || empty($status)) {
+        echo json_encode(['success' => false, 'message' => 'Required fields are missing.']);
+        exit();
+    }
+
     $doctor_id = $_SESSION['role'] === 'doctor' ? $_SESSION['user_id'] : NULL;
     
     $query = "INSERT INTO medical_history (patient_id, condition_name, diagnosis_date, description, treatment, status, doctor_id) 
@@ -53,13 +62,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['action']) || $_POST
     if (mysqli_query($conn, $query)) {
         echo json_encode(['success' => true, 'message' => 'Medical history record added successfully']);
     } else {
-        echo json_encode(['success' => false, 'message' => 'Error adding medical history record']);
+        echo json_encode(['success' => false, 'message' => 'Error adding medical history record: ' . mysqli_error($conn)]);
     }
     exit();
 }
 
 // Get Vital Signs
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['action'] === 'vitals' && isset($_GET['patient_id'])) {
+if ($method === 'GET' && $action === 'vitals' && isset($_GET['patient_id'])) {
     $patient_id = mysqli_real_escape_string($conn, $_GET['patient_id']);
     
     $query = "SELECT vs.*, 
@@ -82,36 +91,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
 }
 
 // Add Vital Signs
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_vitals') {
+if ($method === 'POST' && $action === 'add_vitals') {
     $patient_id = mysqli_real_escape_string($conn, $_POST['patient_id']);
     $blood_pressure = mysqli_real_escape_string($conn, $_POST['blood_pressure']);
-    $heart_rate = mysqli_real_escape_string($conn, $_POST['heart_rate']);
-    $temperature = mysqli_real_escape_string($conn, $_POST['temperature']);
-    $weight = mysqli_real_escape_string($conn, $_POST['weight']);
-    $height = mysqli_real_escape_string($conn, $_POST['height']);
+    $heart_rate = $_POST['heart_rate'] !== "" ? (int)$_POST['heart_rate'] : NULL;
+    $temperature = $_POST['temperature'] !== "" ? (float)$_POST['temperature'] : NULL;
+    $weight = $_POST['weight'] !== "" ? (float)$_POST['weight'] : NULL;
+    $height = $_POST['height'] !== "" ? (float)$_POST['height'] : NULL;
     $recorded_date = mysqli_real_escape_string($conn, $_POST['recorded_date']);
     $notes = isset($_POST['notes']) ? mysqli_real_escape_string($conn, $_POST['notes']) : '';
     $recorded_by = $_SESSION['user_id'];
+
+    // Server-side validation
+    $errors = [];
+    if (empty($recorded_date)) $errors[] = "Recorded date is required.";
+    
+    if (!empty($blood_pressure) && !preg_match('/^\d{2,3}\/\d{2,3}$/', $blood_pressure)) {
+        $errors[] = "Invalid Blood Pressure format. Use ###/##.";
+    }
+    if ($heart_rate !== NULL && ($heart_rate < 30 || $heart_rate > 250)) {
+        $errors[] = "Heart rate out of biological range (30-250 bpm).";
+    }
+    if ($temperature !== NULL && ($temperature < 90 || $temperature > 115)) {
+        $errors[] = "Temperature out of biological range (90-115 °F).";
+    }
+
+    if (!empty($errors)) {
+        echo json_encode(['success' => false, 'message' => implode(" ", $errors)]);
+        exit();
+    }
     
     $query = "INSERT INTO vital_signs (patient_id, blood_pressure, heart_rate, temperature, weight, height, recorded_date, recorded_by, notes) 
-              VALUES ('$patient_id', '$blood_pressure', '$heart_rate', '$temperature', '$weight', '$height', '$recorded_date', '$recorded_by', '$notes')";
+              VALUES ('$patient_id', '$blood_pressure', " . ($heart_rate ?? "NULL") . ", " . ($temperature ?? "NULL") . ", " . ($weight ?? "NULL") . ", " . ($height ?? "NULL") . ", '$recorded_date', '$recorded_by', '$notes')";
     
     if (mysqli_query($conn, $query)) {
         echo json_encode(['success' => true, 'message' => 'Vital signs recorded successfully']);
     } else {
-        echo json_encode(['success' => false, 'message' => 'Error recording vital signs']);
+        echo json_encode(['success' => false, 'message' => 'Error recording vital signs: ' . mysqli_error($conn)]);
     }
     exit();
 }
 
 // Get Patient Summary
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['action'] === 'summary' && isset($_GET['patient_id'])) {
+if ($method === 'GET' && $action === 'summary' && isset($_GET['patient_id'])) {
     $patient_id = mysqli_real_escape_string($conn, $_GET['patient_id']);
     
-    // Get patient info
-    $patient_query = "SELECT * FROM users WHERE id = '$patient_id' AND role = 'patient'";
+    // Get patient info (allow any user lookup — role check has already been done above)
+    $patient_query = "SELECT id, full_name, email, phone, address, date_of_birth, blood_group, gender FROM users WHERE id = '$patient_id'";
     $patient_result = mysqli_query($conn, $patient_query);
+    if (!$patient_result) {
+        echo json_encode(['success' => false, 'message' => 'Database error: ' . mysqli_error($conn)]);
+        exit();
+    }
     $patient = mysqli_fetch_assoc($patient_result);
+
+    if (!$patient) {
+        echo json_encode(['success' => false, 'message' => 'Patient record not found']);
+        exit();
+    }
     
     // Get recent conditions
     $conditions_query = "SELECT * FROM medical_history WHERE patient_id = '$patient_id' AND status = 'active' ORDER BY diagnosis_date DESC LIMIT 5";

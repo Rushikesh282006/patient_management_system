@@ -62,8 +62,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['patient_id'])) {
               FROM prescriptions p
               JOIN users d ON p.doctor_id = d.id
               JOIN appointments a ON p.appointment_id = a.id
-              WHERE p.patient_id = '$patient_id'
-              ORDER BY p.prescription_date DESC";
+              WHERE p.patient_id = '$patient_id'";
+
+    if (isset($_GET['search']) && !empty($_GET['search'])) {
+        $search = mysqli_real_escape_string($conn, $_GET['search']);
+        $query .= " AND (p.diagnosis LIKE '%$search%' OR p.medications LIKE '%$search%' OR d.full_name LIKE '%$search%')";
+    }
+    
+    $query .= " ORDER BY p.prescription_date DESC";
     
     $result = mysqli_query($conn, $query);
     $prescriptions = [];
@@ -116,9 +122,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
               FROM prescriptions p
               JOIN users pat ON p.patient_id = pat.id
               JOIN appointments a ON p.appointment_id = a.id
-              WHERE p.doctor_id = '$doctor_id'
-              ORDER BY p.prescription_date DESC
-              LIMIT 20";
+              WHERE p.doctor_id = '$doctor_id'";
+
+    if (isset($_GET['search']) && !empty($_GET['search'])) {
+        $search = mysqli_real_escape_string($conn, $_GET['search']);
+        $query .= " AND (pat.full_name LIKE '%$search%' OR p.diagnosis LIKE '%$search%' OR p.medications LIKE '%$search%')";
+    }
+    
+    $query .= " ORDER BY p.prescription_date DESC LIMIT 20";
     
     $result = mysqli_query($conn, $query);
     $prescriptions = [];

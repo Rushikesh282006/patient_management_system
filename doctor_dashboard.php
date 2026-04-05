@@ -11,8 +11,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'doctor') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doctor Dashboard - MediCare</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=5.0">
     <link rel="stylesheet" href="css/plugins/flatpickr.min.css">
+    <link rel="stylesheet" href="css/plugins/choices.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -25,9 +26,14 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'doctor') {
                 </div>
                 MediCare
             </a>
-            <div style="display: flex; align-items: center; gap: 2rem;">
-                <span style="color: var(--text-dark);">Welcome, <strong id="doctorName"><?php echo htmlspecialchars($_SESSION['username']); ?></strong></span>
-                <button class="btn-logout" onclick="window.location.href='php/login.php?logout=1'"><span class="hide-on-mobile">Logout</span> <i class="fas fa-sign-out-alt"></i></button>
+            <div class="nav-menu">
+                <span class="welcome-msg">Welcome, <strong id="doctorName"><?php echo htmlspecialchars($_SESSION['username']); ?></strong></span>
+                <div class="nav-actions">
+                    <a href="profile.php" class="btn-secondary" style="padding: 0.6rem 1.2rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--primary); border: 1px solid rgba(10, 77, 104, 0.2); border-radius: 12px;">
+                        <i class="fas fa-user-circle"></i> <span class="hide-on-mobile">My Profile</span>
+                    </a>
+                    <button class="btn-logout" onclick="window.location.href='php/login.php?logout=1'"><span class="hide-on-mobile">Logout</span> <i class="fas fa-sign-out-alt"></i></button>
+                </div>
             </div>
         </div>
     </nav>
@@ -83,9 +89,15 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'doctor') {
             <div class="dashboard-card mt-2">
                 <div class="card-header">
                     <h2 class="card-title">Appointments</h2>
-                    <div class="header-actions" style="display: flex; gap: 1rem;">
-                        <input type="text" id="searchAppointments" class="form-input" placeholder="Search appointments..." 
-                               style="max-width: 300px; padding: 0.7rem;" onkeyup="searchTable('searchAppointments', 'appointmentsTable')">
+                    <div class="header-actions">
+                        <input type="text" id="searchAppointments" class="form-input" placeholder="Search patients..." 
+                               onkeyup="searchTable('searchAppointments', 'appointmentsTable')">
+                        <select id="filterStatus" class="form-select" onchange="loadAppointments()">
+                            <option value="">All Status</option>
+                            <option value="scheduled">Scheduled</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
                     </div>
                 </div>
                 <div id="appointmentsList">
@@ -102,7 +114,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'doctor') {
                 <h2 class="modal-title">Patient Details</h2>
                 <button class="close-modal" onclick="closeModal('patientModal')">&times;</button>
             </div>
-            <div id="patientDetails">
+            <div id="patientDetails" class="modal-body">
                 <p>Loading patient details...</p>
             </div>
         </div>
@@ -115,7 +127,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'doctor') {
                 <h2 class="modal-title">Generate Prescription</h2>
                 <button class="close-modal" onclick="closeModal('prescriptionModal')">&times;</button>
             </div>
-            <form id="prescriptionForm" onsubmit="generatePrescription(event)">
+            <form id="prescriptionForm" class="modal-body" onsubmit="generatePrescription(event)">
                 <input type="hidden" name="appointment_id" id="prescriptionAppointmentId">
                 <input type="hidden" name="patient_id" id="prescriptionPatientId">
                 
@@ -139,7 +151,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'doctor') {
                     <input type="date" name="follow_up_date" class="form-input">
                 </div>
                 
-                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <div class="modal-actions">
                     <button type="button" class="btn-secondary" onclick="closeModal('prescriptionModal')">Cancel</button>
                     <button type="submit" class="btn-primary">Generate Prescription</button>
                 </div>
@@ -154,7 +166,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'doctor') {
                 <h2 class="modal-title">Add Patient Vitals</h2>
                 <button class="close-modal" onclick="closeModal('vitalsModal')">&times;</button>
             </div>
-            <form id="vitalsForm" onsubmit="addVitals(event)">
+            <form id="vitalsForm" class="modal-body" onsubmit="addVitals(event)">
                 <input type="hidden" name="action" value="add_vitals">
                 <input type="hidden" name="patient_id" id="vitalsPatientId">
                 
@@ -190,7 +202,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'doctor') {
                     <textarea name="notes" class="form-textarea" placeholder="Any additional observations..."></textarea>
                 </div>
                 
-                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <div class="modal-actions">
                     <button type="button" class="btn-secondary" onclick="closeModal('vitalsModal')">Cancel</button>
                     <button type="submit" class="btn-primary">Save Vitals</button>
                 </div>
@@ -205,7 +217,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'doctor') {
                 <h2 class="modal-title">Add Medical History</h2>
                 <button class="close-modal" onclick="closeModal('historyModal')">&times;</button>
             </div>
-            <form id="historyForm" onsubmit="addMedicalHistory(event)">
+            <form id="historyForm" class="modal-body" onsubmit="addMedicalHistory(event)">
                 <input type="hidden" name="patient_id" id="historyPatientId">
                 <input type="hidden" name="action" value="add_history">
                 
@@ -238,7 +250,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'doctor') {
                     </select>
                 </div>
                 
-                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <div class="modal-actions">
                     <button type="button" class="btn-secondary" onclick="closeModal('historyModal')">Cancel</button>
                     <button type="submit" class="btn-primary">Save History</button>
                 </div>
@@ -247,6 +259,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'doctor') {
     </div>
 
     <script src="js/plugins/flatpickr.min.js"></script>
+    <script src="js/plugins/choices.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // General date fields (e.g., medical history, vitals)
@@ -259,9 +272,20 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'doctor') {
                 dateFormat: "Y-m-d",
                 minDate: "today"
             });
+            
+            // Initialize Choices.js for select fields
+            const selects = document.querySelectorAll('.form-select');
+            selects.forEach(select => {
+                new Choices(select, {
+                    searchEnabled: false,
+                    itemSelectText: '',
+                    shouldSort: false,
+                    position: 'bottom'
+                });
+            });
         });
     </script>
-    <script src="js/main.js"></script>
-    <script src="js/doctor_dashboard.js"></script>
+    <script src="js/main.js?v=5.0"></script>
+    <script src="js/doctor_dashboard.js?v=5.0"></script>
 </body>
 </html>

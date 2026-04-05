@@ -1,7 +1,9 @@
 // Load doctor dashboard data
 async function loadDoctorDashboard() {
     try {
-        // Load appointments
+        await loadAppointments();
+        
+        // Stats
         const response = await fetch('php/appointment.php?action=list');
         const appointments = await response.json();
         
@@ -18,13 +20,24 @@ async function loadDoctorDashboard() {
         const prescResponse = await fetch('php/prescription.php?action=doctor_prescriptions');
         const prescriptions = await prescResponse.json();
         document.getElementById('totalPrescriptions').textContent = prescriptions.length;
-        
-        // Display appointments
-        displayAppointments(appointments);
     } catch (error) {
         console.error('Error loading dashboard:', error);
     }
 }
+
+// Separate loadAppointments to allow AJAX search
+async function loadAppointments(search = '') {
+    try {
+        const status = document.getElementById('filterStatus') ? document.getElementById('filterStatus').value : '';
+        const url = `php/appointment.php?action=list${search ? `&search=${encodeURIComponent(search)}` : ''}${status ? `&status=${status}` : ''}`;
+        const response = await fetch(url);
+        const appointments = await response.json();
+        displayAppointments(appointments);
+    } catch (error) {
+        console.error('Error loading appointments:', error);
+    }
+}
+window.loadAppointments = loadAppointments;
 
 function displayAppointments(appointments) {
     const container = document.getElementById('appointmentsList');
@@ -75,8 +88,13 @@ async function viewPatientDetails(patientId) {
         const response = await fetch(`php/medical_his.php?action=summary&patient_id=${patientId}`);
         const summary = await response.json();
         
+        if (!summary || summary.success === false || !summary.patient) {
+            showNotification('Could not load patient details. Patient may not exist.', 'error');
+            return;
+        }
+
         const patient = summary.patient;
-        const conditions = summary.active_conditions;
+        const conditions = summary.active_conditions || [];
         const vitals = summary.latest_vitals;
         
         const detailsHtml = `
@@ -101,8 +119,8 @@ async function viewPatientDetails(patientId) {
             </div>
             
             <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
-                <button class="btn-primary" onclick="openVitalsModal(${patient.id})" style="padding: 0.8rem 1.5rem;"><i class="fas fa-heartbeat"></i> Add Vitals</button>
-                <button class="btn-primary" onclick="openHistoryModal(${patient.id})" style="padding: 0.8rem 1.5rem;"><i class="fas fa-notes-medical"></i> Add Medical History</button>
+                <button class="btn-primary" id="btnAddVitals" data-patient-id="${patient.id}" style="padding: 0.8rem 1.5rem;"><i class="fas fa-heartbeat"></i> Add Vitals</button>
+                <button class="btn-primary" id="btnAddHistory" data-patient-id="${patient.id}" style="padding: 0.8rem 1.5rem;"><i class="fas fa-notes-medical"></i> Add Medical History</button>
             </div>
 
             <div class="dashboard-card">
@@ -132,16 +150,54 @@ function openPrescriptionModal(appointmentId, patientId) {
     openModal('prescriptionModal');
 }
 
+// Using event delegation for dynamic buttons inside the modal
+document.addEventListener('click', (e) => {
+    const target = e.target.closest('button');
+    if (!target) return;
+    
+    // Check if it's the Add Vitals button
+    if (target.id === 'btnAddVitals' || target.innerText.includes('Add Vitals')) {
+        const patientId = target.getAttribute('data-patient-id');
+        if (patientId) openVitalsModal(patientId);
+    }
+    
+    // Check if it's the Add History button
+    if (target.id === 'btnAddHistory' || target.innerText.includes('Add Medical History')) {
+        const patientId = target.getAttribute('data-patient-id');
+        if (patientId) openHistoryModal(patientId);
+    }
+});
+
 function openVitalsModal(patientId) {
-    document.getElementById('vitalsPatientId').value = patientId;
-    document.getElementById('vitalsDate').valueAsDate = new Date();
-    openModal('vitalsModal');
+    try {
+        closeModal('patientModal');
+        const idInput = document.getElementById('vitalsPatientId');
+        if (idInput) idInput.value = patientId;
+        const dateInput = document.getElementById('vitalsDate');
+        if (dateInput) {
+            dateInput.value = new Date().toISOString().split('T')[0];
+            if (dateInput._flatpickr) dateInput._flatpickr.setDate(dateInput.value);
+        }
+        openModal('vitalsModal');
+    } catch (err) {
+        openModal('vitalsModal');
+    }
 }
 
 function openHistoryModal(patientId) {
-    document.getElementById('historyPatientId').value = patientId;
-    document.getElementById('historyDate').valueAsDate = new Date();
-    openModal('historyModal');
+    try {
+        closeModal('patientModal');
+        const idInput = document.getElementById('historyPatientId');
+        if (idInput) idInput.value = patientId;
+        const dateInput = document.getElementById('historyDate');
+        if (dateInput) {
+            dateInput.value = new Date().toISOString().split('T')[0];
+            if (dateInput._flatpickr) dateInput._flatpickr.setDate(dateInput.value);
+        }
+        openModal('historyModal');
+    } catch (err) {
+        openModal('historyModal');
+    }
 }
 
 // Initialize dashboard
